@@ -4,6 +4,7 @@ using System.Text;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Plugin.Maui.Intercom;
+using Microsoft.Maui.ApplicationModel;
 
 namespace MauiSample;
 

@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Intercom;
 using static System.Net.Mime.MediaTypeNames;
+using Microsoft.Maui.ApplicationModel;
 
 namespace Plugin.Maui.Intercom;
 

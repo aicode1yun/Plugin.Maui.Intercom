@@ -27,7 +27,7 @@ public class IntercomSdk {
      * @param apiKey {String} The Intercom API key
      * @param appId {String} The Intercom app ID
      */
-    public static void Initialize(Activity activity, String apiKey, String appId) {
+    public static void initialize(Activity activity, String apiKey, String appId) {
         try {
             Application application = activity.getApplication();
             Intercom.initialize(application, apiKey, appId);
@@ -36,8 +36,8 @@ public class IntercomSdk {
         }
     }
 
-    public static void RegisterUser(IIntercomCallback callback) {
-        RegisterUser(null, callback);
+    public static void registerUser(IIntercomCallback callback) {
+        registerUser(null, callback);
     }
 
     /**
@@ -45,7 +45,7 @@ public class IntercomSdk {
      * @param userAttributes {email: String, userId: String} The user attributes to register with Intercom
      * @param callback {IIntercomCallback} The callback to handle the registration result
      */
-    public static void RegisterUser(Map<String, String> userAttributes, IIntercomCallback callback) {
+    public static void registerUser(Map<String, String> userAttributes, IIntercomCallback callback) {
         try {
             if (userAttributes == null) {
                 Intercom.client().loginUnidentifiedUser(new IntercomStatusCallback() {
@@ -100,12 +100,11 @@ public class IntercomSdk {
      * Update the user hash, call this before registering a user
      * @param userHash {String} The user hash
      */
-    public static void SetUserHash(String userHash) {
-        if (userHash == null) {
-            return;
-        }
+    public static void setUserHash(String userHash) {
         try {
-            Intercom.client().setUserHash(userHash);
+            if (userHash != null) {
+                Intercom.client().setUserHash(userHash);
+            }
         } catch (Exception e) {
             Log.e("intercom", "Intercom user hash failed: " + e.getMessage());
         }
@@ -115,7 +114,7 @@ public class IntercomSdk {
      * Show the Intercom messenger with an optional message
      * @param message {String} The message to present
      */
-    public static void PresentMessenger(String message) {
+    public static void presentMessenger(String message) {
         try {
             if (message != null) {
                 Intercom.client().displayMessageComposer(message);
@@ -130,7 +129,7 @@ public class IntercomSdk {
     /**
      * Show the Intercom help center
      */
-    public static void PresentHelpCenter() {
+    public static void presentHelpCenter() {
         try {
             Intercom.client().present(IntercomSpace.HelpCenter);
         } catch (Exception e) {
@@ -141,7 +140,7 @@ public class IntercomSdk {
     /**
      * Show the Intercom support center
      */
-    public static void PresentSupportCenter() {
+    public static void presentSupportCenter() {
         try {
             Intercom.client().present(IntercomSpace.Home);
         } catch (Exception e) {
@@ -153,9 +152,9 @@ public class IntercomSdk {
      * Show the Intercom message composer with a message
      * @param message {String} The message to present
      */
-    public static void PresentMessageComposer(String message) {
+    public static void presentMessageComposer(String message) {
         try {
-            PresentMessenger(message);
+            presentMessenger(message);
         } catch (Exception e) {
             Log.e("intercom", "Presenting message composer failed: " + e.getMessage());
         }
@@ -165,7 +164,7 @@ public class IntercomSdk {
      * Show the Intercom carousel with a carousel ID
      * @param carouselId {String} The carousel ID to present
      */
-    public static void PresentCarousel(String carouselId) {
+    public static void presentCarousel(String carouselId) {
         try {
             Intercom.client().presentContent(new IntercomContent.Carousel(carouselId));
         } catch (Exception e) {
@@ -177,7 +176,7 @@ public class IntercomSdk {
      * Show the Intercom launcher
      * @param isVisible {Boolean} The visibility of the launcher
      */
-    public static void SetVisible(Boolean isVisible) {
+    public static void setVisible(Boolean isVisible) {
         try {
             Intercom.client().setLauncherVisibility(isVisible ? Intercom.Visibility.VISIBLE : Intercom.Visibility.GONE);
         } catch (Exception e) {
@@ -189,7 +188,7 @@ public class IntercomSdk {
      * Set the bottom padding of the Intercom messenger
      * @param bottomPadding {Integer} The bottom padding of the messenger
      */
-    public static void SetBottomPadding(Integer bottomPadding) {
+    public static void setBottomPadding(Integer bottomPadding) {
         try {
             Intercom.client().setBottomPadding(bottomPadding);
         } catch (Exception e) {
@@ -200,7 +199,7 @@ public class IntercomSdk {
     /**
      * Logout the current user
      */
-    public static void Logout() {
+    public static void logout() {
         try {
             Intercom.client().logout();
         } catch (Exception e) {

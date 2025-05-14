@@ -1,11 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0-android</TargetFramework>
+    <TargetFramework>net9.0-android</TargetFramework>
     <SupportedOSPlatformVersion>21</SupportedOSPlatformVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <RootNamespace>Intercom</RootNamespace>
-    <AndroidGenerateResourceDesigner>false</AndroidGenerateResourceDesigner>
     <!--
       Enable trim analyzers for Android class libraries.
       To learn more, see: https://learn.microsoft.com/dotnet/core/deploying/trimming/prepare-libraries-for-trimming
@@ -16,23 +14,15 @@
       To learn more, see: https://learn.microsoft.com/dotnet/maui/migration/android-binding-projects
     -->
   </PropertyGroup>
-  
+
   <!-- Reference to Android project -->
   <ItemGroup>
-    <NLIGradleProjectReference Include="../native">
+    <AndroidGradleProject Include="../native/build.gradle.kts">
       <ModuleName>mauiintercom</ModuleName>
       <!-- Metadata applicable to @(AndroidLibrary) will be used if set, otherwise the following defaults will be used:
       <Bind>true</Bind>
       <Pack>true</Pack>
       -->
-    </NLIGradleProjectReference>
-  </ItemGroup>
-
-  <!-- Reference to NuGet for building bindings -->
-  <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Maui.NativeLibraryInterop.BuildTasks" Version="0.0.1-pre1" PrivateAssets="all" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Jar\" />
+    </AndroidGradleProject>
   </ItemGroup>
 </Project>
