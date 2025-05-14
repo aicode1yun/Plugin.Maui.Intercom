@@ -4,7 +4,6 @@ using System.Text;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Plugin.Maui.Intercom;
-using Microsoft.Maui.ApplicationModel;
 
 namespace MauiSample;
 
@@ -15,10 +14,10 @@ public partial class MainPage : ContentPage
     public MainPage(IConfiguration configuration)
     {
         InitializeComponent();
-        newBindingSampleLabel.Text = "Hello, world!";
         _configuration = configuration;
     }
-    public string GetHMAC(string key, string message)
+
+    private static string GetHmac(string key, string message)
     {
         // change according to your needs, an UTF8Encoding
         // could be more suitable in certain situations
@@ -30,19 +29,20 @@ public partial class MainPage : ContentPage
         byte[] hashBytes;
 
         using (var hash = new HMACSHA256(keyBytes))
+        {
             hashBytes = hash.ComputeHash(messageBytes);
+        }
 
-        return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
+        return Convert.ToHexStringLower(hashBytes);
     }
-
 
     protected override void OnAppearing()
     {
         base.OnAppearing();
 
         var intercom = Ioc.Default.GetRequiredService<IIntercom>();
-        var intercomApiKey = _configuration.GetValue("Intercom:DroidApiKey", string.Empty) ?? string.Empty;
-        var intercomAppId = _configuration.GetValue("Intercom:AppId", string.Empty) ?? string.Empty;
+        var intercomApiKey = _configuration.GetValue("Intercom:DroidApiKey", string.Empty);
+        var intercomAppId = _configuration.GetValue("Intercom:AppId", string.Empty);
 
         intercom.Initialize(intercomApiKey, intercomAppId);
 
@@ -51,13 +51,13 @@ public partial class MainPage : ContentPage
         //intercom.RegisterWithEmail("test@test.com");
 
         //// If user verification is on, you need to set the user hash
-        var intercomSecret = _configuration.GetValue("Intercom:DroidSecret", string.Empty) ?? string.Empty;
+        var intercomSecret = _configuration.GetValue("Intercom:DroidSecret", string.Empty);
         //intercom.Logout();
-        intercom.SetUserHash(GetHMAC(intercomSecret, "test@test.com"));
+        intercom.SetUserHash(GetHmac(intercomSecret, "test@test.com"));
         intercom.RegisterWithEmail("test@test.com", () =>
         {
             Debug.WriteLine("Intercom Registration SUCCESSFUL");
-        }, (string? msg) =>
+        }, msg =>
         {
             Debug.WriteLine("Intercom Registration FAILED: '{ErrorMessage}'", msg ?? string.Empty);
         });
@@ -73,20 +73,35 @@ public partial class MainPage : ContentPage
         //});
 
         intercom.SetVisible(true);
-        intercom?.PresentHelpCenter();
     }
 
-    async void OnDocsButtonClicked(object sender, EventArgs e)
+    private async void OnDocsButtonClicked(object sender, EventArgs e)
     {
         try
         {
-            Uri uri = new Uri("https://learn.microsoft.com/dotnet/communitytoolkit/maui/native-library-interop/get-started");
+            var uri = new Uri(
+                "https://learn.microsoft.com/dotnet/communitytoolkit/maui/native-library-interop/get-started");
+
             await Browser.Default.OpenAsync(uri, BrowserLaunchMode.SystemPreferred);
         }
         catch (Exception ex)
         {
-            throw new Exception("Browser failed to launch", ex);
+            Console.WriteLine("Browser failed to launch. " + ex);
+        }
+    }
+
+    private async void OnRepoButtonClicked(object sender, EventArgs e)
+    {
+        try
+        {
+            var uri = new Uri(
+                "https://github.com/kfrancis/Plugin.Maui.Intercom");
+
+            await Browser.Default.OpenAsync(uri, BrowserLaunchMode.SystemPreferred);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Browser failed to launch. " + ex);
         }
     }
 }
-
