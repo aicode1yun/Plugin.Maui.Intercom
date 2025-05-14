@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35122.118
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Plugin.Maui.Intercom", "Plugin.Maui.Feature\Plugin.Maui.Intercom.csproj", "{2012F564-B8C7-4CEB-8495-1BCB1B0EB638}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "android", "android", "{147BAB5F-4387-44F6-9421-A4DE5D2B98A1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Intercom.Android.Binding", "android\Intercom.Android.Binding\Intercom.Android.Binding.csproj", "{1A0CC8A5-1BD0-4FCD-AE64-1B97369655E6}"
@@ -16,6 +14,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{92BFDE23-B146-4D43-9915-DA071A20D5D0}"
 	ProjectSection(SolutionItems) = preProject
 		..\.editorconfig = ..\.editorconfig
+		..\android.png = ..\android.png
 		..\.github\workflows\ci-sample.yml = ..\.github\workflows\ci-sample.yml
 		..\.github\workflows\ci.yml = ..\.github\workflows\ci.yml
 		NuGet.Config = NuGet.Config
@@ -25,16 +24,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MauiSample", "sample\MauiSample.csproj", "{6A3C6937-CDF0-4CA0-A320-F3360E2BF4E6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.Maui.Intercom", "Plugin.Maui.Intercom\Plugin.Maui.Intercom.csproj", "{743CB58A-139F-D8C3-D2E8-B0C8F5EE1D5A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{2012F564-B8C7-4CEB-8495-1BCB1B0EB638}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2012F564-B8C7-4CEB-8495-1BCB1B0EB638}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2012F564-B8C7-4CEB-8495-1BCB1B0EB638}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2012F564-B8C7-4CEB-8495-1BCB1B0EB638}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1A0CC8A5-1BD0-4FCD-AE64-1B97369655E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1A0CC8A5-1BD0-4FCD-AE64-1B97369655E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1A0CC8A5-1BD0-4FCD-AE64-1B97369655E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -48,6 +45,10 @@ Global
 		{6A3C6937-CDF0-4CA0-A320-F3360E2BF4E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6A3C6937-CDF0-4CA0-A320-F3360E2BF4E6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6A3C6937-CDF0-4CA0-A320-F3360E2BF4E6}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{743CB58A-139F-D8C3-D2E8-B0C8F5EE1D5A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{743CB58A-139F-D8C3-D2E8-B0C8F5EE1D5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{743CB58A-139F-D8C3-D2E8-B0C8F5EE1D5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{743CB58A-139F-D8C3-D2E8-B0C8F5EE1D5A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

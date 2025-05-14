@@ -7,13 +7,16 @@
 
 **NO**, this is a work in progress and not ready for production use.
 
+![Working on Android](android.png)
+
 ## What works so far?
 
 - [x] Can build without error
 - [x] Callback from platform into .net land works (android)
 - [x] Can initialize Intercom (runtime) without error
 - [x] Can register a user without error 
-- [ ] Can show the Intercom Messenger
+- [x] Can show the Intercom Messenger
+- [ ] Can compose messages
 - [ ] Works end-to-end on Android
 - [ ] Works end-to-end on iOS
 

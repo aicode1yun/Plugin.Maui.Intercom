@@ -60,6 +60,6 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.5" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Plugin.Maui.Feature\Plugin.Maui.Intercom.csproj" />
+    <ProjectReference Include="..\Plugin.Maui.Intercom\Plugin.Maui.Intercom.csproj" />
   </ItemGroup>
 </Project>
