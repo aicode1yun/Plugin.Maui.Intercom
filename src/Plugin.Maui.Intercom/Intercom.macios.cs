@@ -6,6 +6,11 @@ partial class IntercomImplementation : IIntercom
 {
     public void Initialize(string apiKey, string appId)
     {
+
+    }
+
+    public void Register(Action? onSuccess = null, Action<string?>? onFailure = null)
+    {
         throw new NotImplementedException();
     }
 

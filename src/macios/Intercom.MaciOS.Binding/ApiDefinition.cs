@@ -3,7 +3,7 @@ using Foundation;
 using NewBinding;
 using ObjCRuntime;
 
-namespace Intercom.MaciOS.Binding
+namespace MauiIntercomMaciOS
 {
 	// @interface CompanyWrapper : NSObject
 	[BaseType (typeof(NSObject))]
@@ -25,7 +25,6 @@ namespace Intercom.MaciOS.Binding
 		// +(UserAttributesWrapper * _Nonnull)createUserAttributes __attribute__((warn_unused_result("")));
 		[Static]
 		[Export ("createUserAttributes")]
-		//[Verify (MethodToProperty)]
 		UserAttributesWrapper CreateUserAttributes { get; }
 
 		// +(CompanyWrapper * _Nonnull)createCompanyWithCompanyId:(NSString * _Nonnull)companyId name:(NSString * _Nonnull)name __attribute__((warn_unused_result("")));
@@ -88,6 +87,11 @@ namespace Intercom.MaciOS.Binding
 		[Export ("presentIntercomWithSpace:")]
 		void PresentIntercomWithSpace (nint space);
 
+		// +(void)setApiKeyWith:(NSString * _Nonnull)apiKey appId:(NSString * _Nonnull)appId;
+		[Static]
+		[Export ("setApiKeyWith:appId:")]
+		void SetApiKeyWith (string apiKey, string appId);
+
 		// +(void)presentMessageComposer:(NSString * _Nonnull)initialMessage;
 		[Static]
 		[Export ("presentMessageComposer:")]
@@ -126,7 +130,6 @@ namespace Intercom.MaciOS.Binding
 		// +(NSUInteger)unreadConversationCount __attribute__((warn_unused_result("")));
 		[Static]
 		[Export ("unreadConversationCount")]
-		//[Verify (MethodToProperty)]
 		nuint UnreadConversationCount { get; }
 
 		// +(void)enableLogging;

@@ -1,3 +1,4 @@
+#if ANDROID
 using Java.Lang;
 using MauiIntercomAndroid;
 using Boolean = Java.Lang.Boolean;
@@ -120,3 +121,4 @@ internal class IntercomImplementation : IIntercom
         }
     }
 }
+#endif

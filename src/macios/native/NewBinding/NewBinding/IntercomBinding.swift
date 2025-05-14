@@ -178,6 +178,11 @@ public class IntercomBinding : NSObject {
     }
     
     @objc
+    public static func setApiKey(with apiKey: String, appId: String) {
+        Intercom.setApiKey(apiKey, forAppId: appId)
+    }
+    
+    @objc
     public static func presentMessageComposer(_ initialMessage: String) {
         Intercom.presentMessageComposer(initialMessage)
     }
