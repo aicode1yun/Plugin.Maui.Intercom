@@ -7,14 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		83E34F572C21CB2B008AA950 /* NewBinding.h in Headers */ = {isa = PBXBuildFile; fileRef = 83E34F562C21CB2B008AA950 /* NewBinding.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		83E34F5E2C21CC53008AA950 /* DotnetNewBinding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83E34F5D2C21CC53008AA950 /* DotnetNewBinding.swift */; };
+		83E34F5E2C21CC53008AA950 /* IntercomBinding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83E34F5D2C21CC53008AA950 /* IntercomBinding.swift */; };
+		A8B9DB402DD50C6200D7EAFF /* Intercom in Frameworks */ = {isa = PBXBuildFile; productRef = A8B9DB3F2DD50C6200D7EAFF /* Intercom */; };
+		A8B9DB422DD5191800D7EAFF /* IntercomBinding.h in Headers */ = {isa = PBXBuildFile; fileRef = A8B9DB412DD5191800D7EAFF /* IntercomBinding.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		83E34F532C21CB2B008AA950 /* NewBinding.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NewBinding.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		83E34F562C21CB2B008AA950 /* NewBinding.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NewBinding.h; sourceTree = "<group>"; };
-		83E34F5D2C21CC53008AA950 /* DotnetNewBinding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DotnetNewBinding.swift; sourceTree = "<group>"; };
+		83E34F5D2C21CC53008AA950 /* IntercomBinding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntercomBinding.swift; sourceTree = "<group>"; };
+		A8B9DB412DD5191800D7EAFF /* IntercomBinding.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IntercomBinding.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -22,6 +23,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A8B9DB402DD50C6200D7EAFF /* Intercom in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -47,8 +49,8 @@
 		83E34F552C21CB2B008AA950 /* NewBinding */ = {
 			isa = PBXGroup;
 			children = (
-				83E34F562C21CB2B008AA950 /* NewBinding.h */,
-				83E34F5D2C21CC53008AA950 /* DotnetNewBinding.swift */,
+				A8B9DB412DD5191800D7EAFF /* IntercomBinding.h */,
+				83E34F5D2C21CC53008AA950 /* IntercomBinding.swift */,
 			);
 			path = NewBinding;
 			sourceTree = "<group>";
@@ -60,7 +62,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				83E34F572C21CB2B008AA950 /* NewBinding.h in Headers */,
+				A8B9DB422DD5191800D7EAFF /* IntercomBinding.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -109,6 +111,9 @@
 				Base,
 			);
 			mainGroup = 83E34F492C21CB2B008AA950;
+			packageReferences = (
+				A8B9DB3E2DD50C6200D7EAFF /* XCRemoteSwiftPackageReference "intercom-ios-sp" */,
+			);
 			productRefGroup = 83E34F542C21CB2B008AA950 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -133,7 +138,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				83E34F5E2C21CC53008AA950 /* DotnetNewBinding.swift in Sources */,
+				83E34F5E2C21CC53008AA950 /* IntercomBinding.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -295,7 +300,7 @@
 				SDKROOT = auto;
 				SKIP_INSTALL = NO;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_INSTALL_OBJC_HEADER = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -339,7 +344,7 @@
 				SDKROOT = auto;
 				SKIP_INSTALL = NO;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_INSTALL_OBJC_HEADER = YES;
 				SWIFT_VERSION = 5.0;
@@ -369,6 +374,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		A8B9DB3E2DD50C6200D7EAFF /* XCRemoteSwiftPackageReference "intercom-ios-sp" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/intercom/intercom-ios-sp";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 18.7.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A8B9DB3F2DD50C6200D7EAFF /* Intercom */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A8B9DB3E2DD50C6200D7EAFF /* XCRemoteSwiftPackageReference "intercom-ios-sp" */;
+			productName = Intercom;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 83E34F4A2C21CB2B008AA950 /* Project object */;
 }
