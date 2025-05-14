@@ -73,4 +73,6 @@
   <ItemGroup Condition="$(TargetFramework.Contains('android'))">
     <ProjectReference Include="..\android\Intercom.Android.Binding\Intercom.Android.Binding.csproj" />
   </ItemGroup>
+
+ 
 </Project>

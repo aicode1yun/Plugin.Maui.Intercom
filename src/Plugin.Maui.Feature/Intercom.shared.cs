@@ -1,18 +1,19 @@
-using System.Security.Cryptography;
-using System.Text;
-
 namespace Plugin.Maui.Intercom;
 
 public static class Intercom
 {
-    static IIntercom? defaultImplementation;
+    private static IIntercom? s_defaultImplementation;
 
     /// <summary>
-    /// Provides the default implementation for static usage of this API.
+    ///     Provides the default implementation for static usage of this API.
     /// </summary>
-    public static IIntercom Default =>
-        defaultImplementation ??= new IntercomImplementation();
+    public static IIntercom Default
+    {
+        get => s_defaultImplementation ??= new IntercomImplementation();
+    }
 
-    internal static void SetDefault(IIntercom? implementation) =>
-        defaultImplementation = implementation;
+    internal static void SetDefault(IIntercom? implementation)
+    {
+        s_defaultImplementation = implementation;
+    }
 }

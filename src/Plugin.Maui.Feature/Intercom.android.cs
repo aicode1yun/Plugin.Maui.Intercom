@@ -1,40 +1,14 @@
-using System.Diagnostics;
-using System.Security.Cryptography;
-using System.Text;
-using Intercom;
-using static System.Net.Mime.MediaTypeNames;
-using Microsoft.Maui.ApplicationModel;
+using Java.Lang;
+using MauiIntercomAndroid;
+using Boolean = Java.Lang.Boolean;
+using Object = Java.Lang.Object;
 
 namespace Plugin.Maui.Intercom;
 
-partial class IntercomImplementation : IIntercom
+internal class IntercomImplementation : IIntercom
 {
-    class IntercomCallback : Java.Lang.Object, IIntercomCallback
-    {
-        private readonly Action? _onSuccess;
-        private readonly Action<string?>? _onFailure;
-
-        public IntercomCallback(Action? onSuccess, Action<string?>? onFailure)
-        {
-            _onSuccess = onSuccess;
-            _onFailure = onFailure;
-        }
-
-        public void OnFailure(string? error)
-        {
-            if (_onFailure != null)
-                _onFailure.Invoke(error);
-        }
-
-        public void OnSuccess()
-        {
-            if (_onSuccess != null)
-                _onSuccess.Invoke();
-        }
-    }
-
     /// <summary>
-    /// Initialize Intercom with your API key and App ID.
+    ///     Initialize Intercom with your API key and App ID.
     /// </summary>
     /// <param name="apiKey">Your Intercom API key.</param>
     /// <param name="appId">Your Intercom App ID.</param>
@@ -44,7 +18,7 @@ partial class IntercomImplementation : IIntercom
     }
 
     /// <summary>
-    /// Register a user using their userId 
+    ///     Register a user using their userId
     /// </summary>
     /// <param name="userId">The userId of the user you want to register</param>
     /// <param name="onSuccess">An optional callback used when the registration is successful</param>
@@ -57,18 +31,16 @@ partial class IntercomImplementation : IIntercom
             throw new ArgumentException($"'{nameof(userId)}' cannot be null or empty.", nameof(userId));
         }
 
-        var userAttributes = new Dictionary<string, string>();
-        userAttributes.Add("userId", userId);
+        var userAttributes = new Dictionary<string, string> { { "userId", userId } };
         IntercomSdk.RegisterUser(userAttributes, new IntercomCallback(onSuccess, onFailure));
     }
 
     public void Register(Action? onSuccess = null, Action<string>? onFailure = null)
     {
-
     }
 
     /// <summary>
-    /// Register a user using their email 
+    ///     Register a user using their email
     /// </summary>
     /// <param name="email">The email address of the user you want to register</param>
     /// <param name="onSuccess">An optional callback used when the registration is successful</param>
@@ -81,8 +53,7 @@ partial class IntercomImplementation : IIntercom
             throw new ArgumentException($"'{nameof(email)}' cannot be null or empty.", nameof(email));
         }
 
-        var userAttributes = new Dictionary<string, string>();
-        userAttributes.Add("email", email);
+        var userAttributes = new Dictionary<string, string> { { "email", email } };
         IIntercomCallback callback = new IntercomCallback(onSuccess, onFailure);
         IntercomSdk.RegisterUser(userAttributes, callback);
     }
@@ -114,16 +85,38 @@ partial class IntercomImplementation : IIntercom
 
     public void SetVisible(bool isVisible)
     {
-        IntercomSdk.SetVisible(isVisible ? Java.Lang.Boolean.True : Java.Lang.Boolean.False);
+        IntercomSdk.SetVisible(isVisible ? Boolean.True : Boolean.False);
     }
 
     public void SetBottomPadding(int bottomPadding)
     {
-        IntercomSdk.SetBottomPadding(Java.Lang.Integer.ValueOf(bottomPadding));
+        IntercomSdk.SetBottomPadding(Integer.ValueOf(bottomPadding));
     }
 
     public void Logout()
     {
         IntercomSdk.Logout();
+    }
+
+    private class IntercomCallback : Object, IIntercomCallback
+    {
+        private readonly Action<string?>? _onFailure;
+        private readonly Action? _onSuccess;
+
+        public IntercomCallback(Action? onSuccess, Action<string?>? onFailure)
+        {
+            _onSuccess = onSuccess;
+            _onFailure = onFailure;
+        }
+
+        public void OnFailure(string? error)
+        {
+            _onFailure?.Invoke(error);
+        }
+
+        public void OnSuccess()
+        {
+            _onSuccess?.Invoke();
+        }
     }
 }

@@ -51,20 +51,20 @@ public partial class MainPage : ContentPage
         //intercom.RegisterWithEmail("test@test.com");
 
         //// If user verification is on, you need to set the user hash
-        //var intercomSecret = _configuration.GetValue("Intercom:DroidSecret", string.Empty) ?? string.Empty;
+        var intercomSecret = _configuration.GetValue("Intercom:DroidSecret", string.Empty) ?? string.Empty;
         //intercom.Logout();
-        //intercom.SetUserHash(GetHMAC(intercomSecret, "test@test.com"));
-        //intercom.RegisterWithEmail("test@test.com", () =>
-        //{
-        //    Debug.WriteLine("Intercom Registration SUCCESSFUL");
-        //}, (string? msg) =>
-        //{
-        //    Debug.WriteLine("Intercom Registration FAILED: '{ErrorMessage}'", msg ?? string.Empty);
-        //});
+        intercom.SetUserHash(GetHMAC(intercomSecret, "test@test.com"));
+        intercom.RegisterWithEmail("test@test.com", () =>
+        {
+            Debug.WriteLine("Intercom Registration SUCCESSFUL");
+        }, (string? msg) =>
+        {
+            Debug.WriteLine("Intercom Registration FAILED: '{ErrorMessage}'", msg ?? string.Empty);
+        });
 
         // If there's no user info at all, you can just call register
         //intercom.Logout();
-        //intercom.Register(() =>
+        //intercom.RegisterWithEmail(() =>
         //{
         //    Debug.WriteLine("Intercom Registration SUCCESSFUL");
         //}, (string? msg) =>
@@ -73,7 +73,7 @@ public partial class MainPage : ContentPage
         //});
 
         intercom.SetVisible(true);
-        //intercom?.PresentHelpCenter();
+        intercom?.PresentHelpCenter();
     }
 
     async void OnDocsButtonClicked(object sender, EventArgs e)
