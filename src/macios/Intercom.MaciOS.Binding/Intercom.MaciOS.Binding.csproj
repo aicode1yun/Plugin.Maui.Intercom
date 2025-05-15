@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net9.0-ios</TargetFrameworks>
+    <TargetFramework>net9.0-ios</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>true</ImplicitUsings>
     <IsBindingProject>true</IsBindingProject>
-    
+
     <!--
       Enable trim analyzers for class libraries.
       To learn more, see: https://learn.microsoft.com/dotnet/core/deploying/trimming/prepare-libraries-for-trimming
@@ -38,4 +38,13 @@
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="cd $(OutDir)/$(ProjectResources)/$(XCFramework)/$(RID)/$(Framework)&#xA;&#xA;rm -rf $(SharpieOutput)&#xA;&#xA;sharpie bind --output=$(SharpieOutput) --namespace=$(Namespace) --sdk=$(SDK) --scope=$(Scope)" />
   </Target>
+
+<!--  <ItemGroup>-->
+<!--    <NativeReference Include="libs\Intercom.xcframework">-->
+<!--      <Kind>Framework</Kind>-->
+<!--      <ForceLoad>true</ForceLoad>-->
+<!--      <SmartLink>false</SmartLink>-->
+<!--      <Visible>true</Visible>-->
+<!--    </NativeReference>-->
+<!--  </ItemGroup>-->
 </Project>
