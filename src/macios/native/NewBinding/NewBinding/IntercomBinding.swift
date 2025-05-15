@@ -7,7 +7,6 @@
 import Foundation
 import Intercom
 
-// Declare exposed wrapper classes with different names
 @objc(UserAttributesWrapper)
 public class UserAttributesWrapper : NSObject {
     @objc public var userId: String?
