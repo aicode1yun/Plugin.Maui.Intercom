@@ -65,13 +65,13 @@
     <None Include="..\..\nuget.png" PackagePath="icon.png" Pack="true" />
     <None Include="..\..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
-  <!-- Reference to MaciOS Binding project -->
-  <!--<ItemGroup Condition="$(TargetFramework.Contains('ios')) Or $(TargetFramework.Contains('maccatalyst'))">
-        <ProjectReference Include="..\macios\Intercom.MaciOS.Binding\Intercom.MaciOS.Binding.csproj" />
-    </ItemGroup>-->
   <!-- Reference to Android Binding project -->
   <ItemGroup Condition="$(TargetFramework.Contains('android'))">
     <ProjectReference Include="..\android\Intercom.Android.Binding\Intercom.Android.Binding.csproj" />
+  </ItemGroup>
+  <!-- Reference to MaciOS Binding project -->
+  <ItemGroup Condition="$(TargetFramework.Contains('ios')) Or $(TargetFramework.Contains('maccatalyst'))">
+    <ProjectReference Include="..\macios\Intercom.MaciOS.Binding\Intercom.MaciOS.Binding.csproj" />
   </ItemGroup>
 
 

@@ -1,4 +1,6 @@
 using System;
+using MauiIntercomMaciOS;
+using IntercomSdk = MauiIntercomMaciOS.IntercomBinding;
 
 namespace Plugin.Maui.Intercom;
 
@@ -6,7 +8,7 @@ partial class IntercomImplementation : IIntercom
 {
     public void Initialize(string apiKey, string appId)
     {
-
+        IntercomSdk.SetApiKeyWith(apiKey, appId);
     }
 
     public void Register(Action? onSuccess = null, Action<string?>? onFailure = null)
@@ -21,7 +23,17 @@ partial class IntercomImplementation : IIntercom
 
     public void RegisterWithEmail(string email, Action? onSuccess = null, Action<string?>? onFailure = null)
     {
-        throw new NotImplementedException();
+        IntercomSdk.LoginUserWithEmail(email, (success, error) =>
+        {
+            if (success)
+            {
+                onSuccess?.Invoke();
+            }
+            else
+            {
+                onFailure?.Invoke(error?.LocalizedDescription);
+            }
+        });
     }
 
     public void Logout()
@@ -31,7 +43,7 @@ partial class IntercomImplementation : IIntercom
 
     public void SetUserHash(string userHash)
     {
-        throw new NotImplementedException();
+        // Do nothing
     }
 
     public void PresentMessenger(string? message)
@@ -56,7 +68,7 @@ partial class IntercomImplementation : IIntercom
 
     public void SetVisible(bool isVisible)
     {
-        throw new NotImplementedException();
+        IntercomSdk.SetLauncherVisible(isVisible);
     }
 
     public void SetBottomPadding(int bottomPadding)

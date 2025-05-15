@@ -114,6 +114,16 @@ public class IntercomBinding : NSObject {
         Intercom.logout()
     }
     
+    /**
+     * Update the user hash, call this before registering a user
+     * @param userHash The user hash (HMAC of user id or email)
+     */
+    @objc
+    public static func setUserHash(_ userHash: String?) {
+        guard let userHash = userHash else { return }
+        Intercom.setUserHash(userHash)
+    }
+    
     // MARK: - Update User
     
     @objc
