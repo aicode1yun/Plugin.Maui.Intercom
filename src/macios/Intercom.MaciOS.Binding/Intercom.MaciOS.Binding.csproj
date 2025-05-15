@@ -12,6 +12,17 @@
     <IsTrimmable>true</IsTrimmable>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <XCFramework>NewBindingiOS.xcframework</XCFramework>
+    <Framework>NewBinding.framework</Framework>
+    <ProjectResources>Intercom.MaciOS.Binding.resources</ProjectResources>
+    <RID>ios-arm64</RID>
+    <SharpieOutput>sharpie-out</SharpieOutput>
+    <Namespace>$(RootNameSpace)</Namespace>
+    <SDK>iphoneos18.2</SDK>
+    <Scope>Headers Headers/NewBinding-Swift.h</Scope>
+  </PropertyGroup>
+
   <ItemGroup>
     <ObjcBindingApiDefinition Include="ApiDefinition.cs" />
     <ObjcBindingCoreSource Include="StructsAndEnums.cs" />
@@ -21,11 +32,10 @@
   <ItemGroup>
     <XcodeProject Include="../native/NewBinding/NewBinding.xcodeproj">
       <SchemeName>NewBinding</SchemeName>
-      <Kind>Framework</Kind>
-      <SmartLink>true</SmartLink>
-      <ForceLoad>true</ForceLoad>
     </XcodeProject>
   </ItemGroup>
 
-  <!-- Reference to NuGet for building bindings -->
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="cd $(OutDir)/$(ProjectResources)/$(XCFramework)/$(RID)/$(Framework)&#xA;&#xA;rm -rf $(SharpieOutput)&#xA;&#xA;sharpie bind --output=$(SharpieOutput) --namespace=$(Namespace) --sdk=$(SDK) --scope=$(Scope)" />
+  </Target>
 </Project>
