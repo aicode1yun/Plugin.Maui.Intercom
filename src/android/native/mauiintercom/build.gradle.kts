@@ -26,5 +26,7 @@ android {
 }
 
 dependencies {
-    implementation ("io.intercom.android:intercom-sdk-base:16.0.0")
+    // Use intercom-sdk-base which matches the AAR files in the binding project
+    // The UI and other dependencies are provided via the binding project's AndroidLibrary items
+    implementation ("io.intercom.android:intercom-sdk-base:15.10.1")
 }

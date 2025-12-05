@@ -1,6 +1,5 @@
 using System;
 using Foundation;
-using NewBinding;
 using ObjCRuntime;
 
 namespace MauiIntercomMaciOS

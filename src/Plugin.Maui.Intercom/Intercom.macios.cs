@@ -159,10 +159,14 @@ public static class DictionaryExtensions
 {
     public static NSDictionary<NSString, NSObject> ToNSDictionary(this Dictionary<string, object> dictionary)
     {
-        var nsDict = new NSDictionary<NSString, NSObject>();
+        var keys = new NSString[dictionary.Count];
+        var values = new NSObject[dictionary.Count];
+        var index = 0;
 
         foreach (var item in dictionary)
         {
+            keys[index] = new NSString(item.Key);
+
             NSObject nsValue;
 
             // Convert C# types to NSObject types
@@ -181,9 +185,10 @@ public static class DictionaryExtensions
             else
                 nsValue = NSObject.FromObject(item.Value);
 
-            nsDict.SetValueForKey(nsValue, new NSString(item.Key));
+            values[index] = nsValue;
+            index++;
         }
 
-        return nsDict;
+        return NSDictionary<NSString, NSObject>.FromObjectsAndKeys(values, keys);
     }
 }

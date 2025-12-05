@@ -19,7 +19,7 @@
     <RID>ios-arm64</RID>
     <SharpieOutput>sharpie-out</SharpieOutput>
     <Namespace>$(RootNameSpace)</Namespace>
-    <SDK>iphoneos18.2</SDK>
+    <SDK>iphoneos</SDK>
     <Scope>Headers Headers/NewBinding-Swift.h</Scope>
   </PropertyGroup>
 
