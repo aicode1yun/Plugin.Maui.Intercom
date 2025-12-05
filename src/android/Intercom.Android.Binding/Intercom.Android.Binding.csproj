@@ -24,6 +24,15 @@
     </AndroidGradleProject>
   </ItemGroup>
 
+  <!-- 
+    Exclude duplicate Compose Runtime Annotation packages to avoid D8/R8 class duplication error.
+    Both .Android and .Jvm variants define the same classes (e.g., Immutable.class).
+    We exclude the .Jvm variant since we're building for Android and need the .Android variant.
+  -->
+  <ItemGroup>
+    <PackageReference Include="Xamarin.AndroidX.Compose.Runtime.Annotation.Jvm" Version="1.9.2" ExcludeAssets="all" PrivateAssets="all" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="GoogleGson" Version="2.13.0.1" />
     <PackageReference Include="Square.OkIO">
@@ -108,6 +117,9 @@
       <Version>1.0.0.32</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Lifecycle.Common">
+      <Version>2.9.4</Version>
+    </PackageReference>
+    <PackageReference Include="Xamarin.AndroidX.Lifecycle.LiveData.Core">
       <Version>2.9.4</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Lifecycle.Runtime">
