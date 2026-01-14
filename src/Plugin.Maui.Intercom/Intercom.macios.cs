@@ -1,156 +1,215 @@
 using System;
 using Foundation;
-using MauiIntercomMaciOS;
-using IntercomSdk = MauiIntercomMaciOS.IntercomBinding;
-using IntercomSpace = MauiIntercomMaciOS.IntercomSpaceBinding;
+//using MauiIntercomMaciOS;
+//using IntercomSdk = MauiIntercomMaciOS.IntercomBinding;
+//using IntercomSpace = MauiIntercomMaciOS.IntercomSpaceBinding;
 
 namespace Plugin.Maui.Intercom;
 
 partial class IntercomImplementation : IIntercom
 {
+    //public void Initialize(string apiKey, string appId)
+    //{
+    //    IntercomSdk.SetApiKeyWith(apiKey, appId);
+    //}
+
+    //public void Register(Action? onSuccess = null, Action<string?>? onFailure = null)
+    //{
+    //    IntercomSdk.LoginUnidentifiedUserWithCompletion((success, error) =>
+    //    {
+    //        if (success)
+    //        {
+    //            onSuccess?.Invoke();
+    //        }
+    //        else
+    //        {
+    //            onFailure?.Invoke(error?.LocalizedDescription);
+    //        }
+    //    });
+    //}
+
+    //public void RegisterWithUserId(string userId, Action? onSuccess = null, Action<string?>? onFailure = null)
+    //{
+    //    IntercomSdk.LoginUserWithUserId(userId, (success, error) =>
+    //    {
+    //        if (success)
+    //        {
+    //            onSuccess?.Invoke();
+    //        }
+    //        else
+    //        {
+    //            onFailure?.Invoke(error?.LocalizedDescription);
+    //        }
+    //    });
+    //}
+
+    //public void RegisterWithEmail(string email, Action? onSuccess = null, Action<string?>? onFailure = null)
+    //{
+    //    IntercomSdk.LoginUserWithEmail(email, (success, error) =>
+    //    {
+    //        if (success)
+    //        {
+    //            onSuccess?.Invoke();
+    //        }
+    //        else
+    //        {
+    //            onFailure?.Invoke(error?.LocalizedDescription);
+    //        }
+    //    });
+    //}
+
+    //public void Logout()
+    //{
+    //    IntercomSdk.Logout();
+    //}
+
+    //public void SetUserHash(string userHash)
+    //{
+    //    IntercomSdk.SetUserHash(userHash);
+    //}
+
+    //public void PresentMessenger(string? message = null)
+    //{
+    //    if (string.IsNullOrEmpty(message))
+    //    {
+    //        IntercomSdk.PresentIntercom();
+    //    }
+    //    else
+    //    {
+    //        IntercomSdk.PresentMessageComposer(message);
+    //    }
+    //}
+
+    //public void PresentHelpCenter()
+    //{
+    //    // Present the Help Center space
+    //    IntercomSdk.PresentIntercomWithSpace(IntercomSpace.HelpCenter);
+    //}
+
+    //public void PresentSupportCenter()
+    //{
+    //    // Present the Home space (which contains all Intercom functionality)
+    //    IntercomSdk.PresentIntercomWithSpace(IntercomSpace.Home);
+    //}
+
+    //public void PresentCarousel(string carouselId)
+    //{
+    //    IntercomSdk.PresentContentWith(carouselId, "carousel");
+    //}
+
+    //public void SetVisible(bool isVisible)
+    //{
+    //    IntercomSdk.SetLauncherVisible(isVisible);
+    //}
+
+    //public void SetBottomPadding(int bottomPadding)
+    //{
+    //    IntercomSdk.SetBottomPadding(bottomPadding);
+    //}
+
+    //// Additional methods that might be useful for your implementation
+
+    //public void LogEvent(string eventName)
+    //{
+    //    IntercomSdk.LogEventWithName(eventName);
+    //}
+
+    //public void LogEvent(string eventName, Dictionary<string, object> metadata)
+    //{
+    //    var nsDict = metadata.ToNSDictionary();
+    //    IntercomSdk.LogEventWithName(eventName, nsDict);
+    //}
+
+    //public void UpdateUser(string? userId = null, string? email = null, string? name = null,
+    //    string? phone = null, Dictionary<string, object>? customAttributes = null)
+    //{
+    //    var userAttributes = IntercomSdk.CreateUserAttributes();
+
+    //    if (!string.IsNullOrEmpty(userId))
+    //        userAttributes.UserId = userId;
+
+    //    if (!string.IsNullOrEmpty(email))
+    //        userAttributes.Email = email;
+
+    //    if (!string.IsNullOrEmpty(name))
+    //        userAttributes.Name = name;
+
+    //    if (!string.IsNullOrEmpty(phone))
+    //        userAttributes.Phone = phone;
+
+    //    if (customAttributes != null)
+    //        userAttributes.CustomAttributes = customAttributes.ToNSDictionary();
+
+    //    IntercomSdk.UpdateUser(userAttributes, null);
+    //}
+
+    //public void HideMessenger()
+    //{
+    //    IntercomSdk.HideIntercom();
+    //}
+
+    //public int GetUnreadConversationCount()
+    //{
+    //    return (int)IntercomSdk.UnreadConversationCount();
+    //}
     public void Initialize(string apiKey, string appId)
     {
-        IntercomSdk.SetApiKeyWith(apiKey, appId);
+        throw new NotImplementedException();
     }
 
     public void Register(Action? onSuccess = null, Action<string?>? onFailure = null)
     {
-        IntercomSdk.LoginUnidentifiedUserWithCompletion((success, error) =>
-        {
-            if (success)
-            {
-                onSuccess?.Invoke();
-            }
-            else
-            {
-                onFailure?.Invoke(error?.LocalizedDescription);
-            }
-        });
+        throw new NotImplementedException();
     }
 
     public void RegisterWithUserId(string userId, Action? onSuccess = null, Action<string?>? onFailure = null)
     {
-        IntercomSdk.LoginUserWithUserId(userId, (success, error) =>
-        {
-            if (success)
-            {
-                onSuccess?.Invoke();
-            }
-            else
-            {
-                onFailure?.Invoke(error?.LocalizedDescription);
-            }
-        });
+        throw new NotImplementedException();
     }
 
     public void RegisterWithEmail(string email, Action? onSuccess = null, Action<string?>? onFailure = null)
     {
-        IntercomSdk.LoginUserWithEmail(email, (success, error) =>
-        {
-            if (success)
-            {
-                onSuccess?.Invoke();
-            }
-            else
-            {
-                onFailure?.Invoke(error?.LocalizedDescription);
-            }
-        });
+        throw new NotImplementedException();
     }
 
     public void Logout()
     {
-        IntercomSdk.Logout();
+        throw new NotImplementedException();
     }
 
     public void SetUserHash(string userHash)
     {
-        IntercomSdk.SetUserHash(userHash);
+        throw new NotImplementedException();
     }
 
-    public void PresentMessenger(string? message = null)
+    public void PresentMessenger(string? message)
     {
-        if (string.IsNullOrEmpty(message))
-        {
-            IntercomSdk.PresentIntercom();
-        }
-        else
-        {
-            IntercomSdk.PresentMessageComposer(message);
-        }
+        throw new NotImplementedException();
     }
 
     public void PresentHelpCenter()
     {
-        // Present the Help Center space
-        IntercomSdk.PresentIntercomWithSpace(IntercomSpace.HelpCenter);
+        throw new NotImplementedException();
     }
 
     public void PresentSupportCenter()
     {
-        // Present the Home space (which contains all Intercom functionality)
-        IntercomSdk.PresentIntercomWithSpace(IntercomSpace.Home);
+        throw new NotImplementedException();
     }
 
     public void PresentCarousel(string carouselId)
     {
-        IntercomSdk.PresentContentWith(carouselId, "carousel");
+        throw new NotImplementedException();
     }
 
     public void SetVisible(bool isVisible)
     {
-        IntercomSdk.SetLauncherVisible(isVisible);
+        throw new NotImplementedException();
     }
 
     public void SetBottomPadding(int bottomPadding)
     {
-        IntercomSdk.SetBottomPadding(bottomPadding);
-    }
-
-    // Additional methods that might be useful for your implementation
-
-    public void LogEvent(string eventName)
-    {
-        IntercomSdk.LogEventWithName(eventName);
-    }
-
-    public void LogEvent(string eventName, Dictionary<string, object> metadata)
-    {
-        var nsDict = metadata.ToNSDictionary();
-        IntercomSdk.LogEventWithName(eventName, nsDict);
-    }
-
-    public void UpdateUser(string? userId = null, string? email = null, string? name = null,
-        string? phone = null, Dictionary<string, object>? customAttributes = null)
-    {
-        var userAttributes = IntercomSdk.CreateUserAttributes();
-
-        if (!string.IsNullOrEmpty(userId))
-            userAttributes.UserId = userId;
-
-        if (!string.IsNullOrEmpty(email))
-            userAttributes.Email = email;
-
-        if (!string.IsNullOrEmpty(name))
-            userAttributes.Name = name;
-
-        if (!string.IsNullOrEmpty(phone))
-            userAttributes.Phone = phone;
-
-        if (customAttributes != null)
-            userAttributes.CustomAttributes = customAttributes.ToNSDictionary();
-
-        IntercomSdk.UpdateUser(userAttributes, null);
-    }
-
-    public void HideMessenger()
-    {
-        IntercomSdk.HideIntercom();
-    }
-
-    public int GetUnreadConversationCount()
-    {
-        return (int)IntercomSdk.UnreadConversationCount();
+        throw new NotImplementedException();
     }
 }
 
@@ -159,10 +218,14 @@ public static class DictionaryExtensions
 {
     public static NSDictionary<NSString, NSObject> ToNSDictionary(this Dictionary<string, object> dictionary)
     {
-        var nsDict = new NSDictionary<NSString, NSObject>();
+        var keys = new NSString[dictionary.Count];
+        var values = new NSObject[dictionary.Count];
+        var index = 0;
 
         foreach (var item in dictionary)
         {
+            keys[index] = new NSString(item.Key);
+
             NSObject nsValue;
 
             // Convert C# types to NSObject types
@@ -181,9 +244,10 @@ public static class DictionaryExtensions
             else
                 nsValue = NSObject.FromObject(item.Value);
 
-            nsDict.SetValueForKey(nsValue, new NSString(item.Key));
+            values[index] = nsValue;
+            index++;
         }
 
-        return nsDict;
+        return NSDictionary<NSString, NSObject>.FromObjectsAndKeys(values, keys);
     }
 }

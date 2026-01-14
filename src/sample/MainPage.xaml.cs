@@ -41,7 +41,17 @@ public partial class MainPage : ContentPage
         base.OnAppearing();
 
         var intercom = Ioc.Default.GetRequiredService<IIntercom>();
+        
+#if ANDROID
         var intercomApiKey = _configuration.GetValue("Intercom:DroidApiKey", string.Empty);
+        var intercomSecret = _configuration.GetValue("Intercom:DroidSecret", string.Empty);
+#elif IOS
+        var intercomApiKey = _configuration.GetValue("Intercom:AppleApiKey", string.Empty);
+        var intercomSecret = _configuration.GetValue("Intercom:AppleSecret", string.Empty);
+#else
+        var intercomApiKey = string.Empty;
+        var intercomSecret = string.Empty;
+#endif
         var intercomAppId = _configuration.GetValue("Intercom:AppId", string.Empty);
 
         intercom.Initialize(intercomApiKey, intercomAppId);
@@ -51,7 +61,6 @@ public partial class MainPage : ContentPage
         //intercom.RegisterWithEmail("test@test.com");
 
         //// If user verification is on, you need to set the user hash
-        var intercomSecret = _configuration.GetValue("Intercom:DroidSecret", string.Empty);
         //intercom.Logout();
         intercom.SetUserHash(GetHmac(intercomSecret, "test@test.com"));
         intercom.RegisterWithEmail("test@test.com", () =>

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net9.0-android</TargetFramework>
     <SupportedOSPlatformVersion>21</SupportedOSPlatformVersion>
@@ -24,6 +24,15 @@
     </AndroidGradleProject>
   </ItemGroup>
 
+  <!-- 
+    Exclude duplicate Compose Runtime Annotation packages to avoid D8/R8 class duplication error.
+    Both .Android and .Jvm variants define the same classes (e.g., Immutable.class).
+    We exclude the .Jvm variant since we're building for Android and need the .Android variant.
+  -->
+  <ItemGroup>
+    <PackageReference Include="Xamarin.AndroidX.Compose.Runtime.Annotation.Jvm" Version="1.9.2" ExcludeAssets="all" PrivateAssets="all" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="GoogleGson" Version="2.13.0.1" />
     <PackageReference Include="Square.OkIO">
@@ -39,13 +48,13 @@
       <Version>4.16.0.12</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Activity">
-      <Version>1.10.1.1</Version>
+      <Version>1.11.0</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Activity.Compose">
-      <Version>1.10.1.1</Version>
+      <Version>1.11.0</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Annotation">
-      <Version>1.9.1.3</Version>
+      <Version>1.9.1.5</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.AppCompat">
       <Version>1.7.0.6</Version>
@@ -54,40 +63,40 @@
       <Version>1.7.0.6</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Collection">
-      <Version>1.5.0.1</Version>
+      <Version>1.5.0.3</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Compose.Foundation">
-      <Version>1.7.8.1</Version>
+      <Version>1.9.2</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Compose.Material">
-      <Version>1.7.8.1</Version>
+      <Version>1.9.2</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Compose.Material.Icons.Core">
-      <Version>1.7.8.1</Version>
+      <Version>1.7.8.3</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Compose.Material3">
-      <Version>1.3.2.1</Version>
+      <Version>1.4.0</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Compose.Runtime">
-      <Version>1.7.8.1</Version>
+      <Version>1.9.2</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Compose.UI">
-      <Version>1.7.8.1</Version>
+      <Version>1.9.2</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Compose.UI.Tooling">
-      <Version>1.7.8.1</Version>
+      <Version>1.9.2</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Compose.UI.Tooling.Preview">
-      <Version>1.7.8.1</Version>
+      <Version>1.9.2</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.ConstraintLayout">
       <Version>2.2.1.1</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Core">
-      <Version>1.16.0.1</Version>
+      <Version>1.17.0</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Core.Core.Ktx">
-      <Version>1.16.0.1</Version>
+      <Version>1.17.0</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.DataBinding.ViewBinding">
       <Version>8.9.1.1</Version>
@@ -107,20 +116,26 @@
     <PackageReference Include="Xamarin.AndroidX.Legacy.Support.Core.Utils">
       <Version>1.0.0.32</Version>
     </PackageReference>
+    <PackageReference Include="Xamarin.AndroidX.Lifecycle.Common">
+      <Version>2.9.4</Version>
+    </PackageReference>
+    <PackageReference Include="Xamarin.AndroidX.Lifecycle.LiveData.Core">
+      <Version>2.9.4</Version>
+    </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Lifecycle.Runtime">
-      <Version>2.8.7.3</Version>
+      <Version>2.9.4</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Lifecycle.Runtime.Ktx">
-      <Version>2.8.7.3</Version>
+      <Version>2.9.4</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Lifecycle.ViewModel">
-      <Version>2.8.7.3</Version>
+      <Version>2.9.4</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Lifecycle.ViewModel.Compose">
-      <Version>2.8.7.3</Version>
+      <Version>2.9.4</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Lifecycle.ViewModel.Ktx">
-      <Version>2.8.7.3</Version>
+      <Version>2.9.4</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Media3.ExoPlayer">
       <Version>1.6.1.1</Version>
@@ -144,7 +159,7 @@
       <Version>3.3.6.1</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.ProfileInstaller.ProfileInstaller">
-      <Version>1.4.1.3</Version>
+      <Version>1.4.1.5</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.RecyclerView">
       <Version>1.4.0.1</Version>
@@ -165,24 +180,24 @@
       <Version>0.36.0.4</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.KotlinX.Coroutines.Core">
-      <Version>1.9.0.3</Version>
+      <Version>1.10.2.1</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.Google.Android.Material">
       <Version>1.12.0.3</Version>
     </PackageReference>
-    <PackageReference Include="Xamarin.Kotlin.StdLib.Jdk8" Version="2.0.21.3" />
+    <PackageReference Include="Xamarin.Kotlin.StdLib.Jdk8" Version="2.2.20" />
 
-    <PackageReference Include="Xamarin.Kotlin.StdLib" Version="2.0.21.3" />
+    <PackageReference Include="Xamarin.Kotlin.StdLib" Version="2.2.20" />
 
     <PackageReference Include="Xamarin.KotlinX.Serialization.Core.Jvm">
-      <Version>1.7.3.4</Version>
+      <Version>1.9.0.1</Version>
     </PackageReference>
 
     <PackageReference Include="Xamarin.Google.Accompanist.DrawablePainter">
       <Version>0.37.2.1</Version>
     </PackageReference>
 
-    <PackageReference Include="Xamarin.KotlinX.Serialization.Json" Version="1.7.3.4" />
+    <PackageReference Include="Xamarin.KotlinX.Serialization.Json" Version="1.9.0.1" />
   </ItemGroup>
 
   <ItemGroup>

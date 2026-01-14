@@ -56,9 +56,23 @@
     <None Include="**\*.net.cs" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Maui.Controls" Version="9.0.70" />
+    <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="all" IsImplicitlyDefined="true" />
     <PackageReference Include="System.Management" Version="7.0.0" Condition="$(TargetFramework.Contains('-windows')) == true" />
+  </ItemGroup>
+  <!-- Align Android package versions to avoid downgrade warnings -->
+  <ItemGroup Condition="$(TargetFramework.Contains('-android')) == true">
+    <PackageReference Include="Xamarin.AndroidX.Annotation" Version="1.9.1.5" />
+    <PackageReference Include="Xamarin.AndroidX.Core" Version="1.17.0" />
+    <PackageReference Include="Xamarin.AndroidX.Core.Core.Ktx" Version="1.17.0" />
+    <PackageReference Include="Xamarin.AndroidX.Activity.Compose" Version="1.11.0" />
+    <PackageReference Include="Xamarin.AndroidX.ProfileInstaller.ProfileInstaller" Version="1.4.1.5" />
+    <PackageReference Include="Xamarin.AndroidX.Collection" Version="1.5.0.3" />
+    <PackageReference Include="Xamarin.Kotlin.StdLib" Version="2.2.20" />
+    <PackageReference Include="Xamarin.Kotlin.StdLib.Jdk8" Version="2.2.20" />
+    <PackageReference Include="Xamarin.KotlinX.Serialization.Core.Jvm" Version="1.9.0.1" />
+    <PackageReference Include="Xamarin.KotlinX.Serialization.Json" Version="1.9.0.1" />
+    <PackageReference Include="Xamarin.KotlinX.Coroutines.Core" Version="1.10.2.1" />
   </ItemGroup>
   <!-- Package additions -->
   <ItemGroup>

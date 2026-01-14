@@ -36,8 +36,9 @@ internal class IntercomImplementation : IIntercom
         IntercomSdk.RegisterUser(userAttributes, new IntercomCallback(onSuccess, onFailure));
     }
 
-    public void Register(Action? onSuccess = null, Action<string>? onFailure = null)
+    public void Register(Action? onSuccess = null, Action<string?>? onFailure = null)
     {
+        IntercomSdk.RegisterUser(new IntercomCallback(onSuccess, onFailure));
     }
 
     /// <summary>
