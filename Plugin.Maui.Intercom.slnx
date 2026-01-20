@@ -1,0 +1,21 @@
+<Solution>
+  <Folder Name="/android/">
+    <Project Path="src/android/Intercom.Android.Binding/Intercom.Android.Binding.csproj" />
+  </Folder>
+  <Folder Name="/macios/">
+    <Project Path="src/macios/Intercom.MaciOS.Binding/Intercom.MaciOS.Binding.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="../.editorconfig" />
+    <File Path="../.github/workflows/ci-sample.yml" />
+    <File Path="../.github/workflows/ci.yml" />
+    <File Path="../.github/workflows/release-nuget.yml" />
+    <File Path="../android.png" />
+    <File Path="../README.md" />
+    <File Path="NuGet.Config" />
+  </Folder>
+  <Project Path="src/Plugin.Maui.Intercom/Plugin.Maui.Intercom.csproj" />
+  <Project Path="src/sample/MauiSample.csproj">
+    <Deploy />
+  </Project>
+</Solution>

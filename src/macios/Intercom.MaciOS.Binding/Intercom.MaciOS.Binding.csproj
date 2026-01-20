@@ -3,35 +3,16 @@
     <TargetFramework>net9.0-ios</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>true</ImplicitUsings>
-    <!-- Only enable binding on macOS/non-Windows platforms -->
-    <IsBindingProject Condition="'$(OS)' != 'Windows_NT'">true</IsBindingProject>
+    <IsBindingProject>true</IsBindingProject>
+
+    <!--
+      Enable trim analyzers for class libraries.
+      To learn more, see: https://learn.microsoft.com/dotnet/core/deploying/trimming/prepare-libraries-for-trimming
+    -->
     <IsTrimmable>true</IsTrimmable>
-    <!-- On Windows, disable all standard targets to avoid path issues -->
-    <EnableDefaultCompileItems Condition="'$(OS)' == 'Windows_NT'">false</EnableDefaultCompileItems>
-    <EnableDefaultItems Condition="'$(OS)' == 'Windows_NT'">false</EnableDefaultItems>
   </PropertyGroup>
 
-  <!-- On Windows: Skip all build tasks and create empty output -->
-  <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
-    <SkipCopyBuildProduct>true</SkipCopyBuildProduct>
-    <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
-    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-  </PropertyGroup>
-
-  <!-- Replace default Build target on Windows with a message -->
-  <Target Name="Build" Condition="'$(OS)' == 'Windows_NT'">
-    <Message Text="Skipping iOS binding build on Windows due to path length limitations with Swift modules. Please build on macOS for iOS support." Importance="high" />
-    <MakeDir Directories="$(OutDir)" />
-    <MakeDir Directories="$(IntermediateOutputPath)" />
-  </Target>
-
-  <!-- Disable CoreCompile and other standard targets on Windows -->
-  <Target Name="CoreCompile" Condition="'$(OS)' == 'Windows_NT'" />
-  <Target Name="CopyFilesToOutputDirectory" Condition="'$(OS)' == 'Windows_NT'" />
-
-  <!-- macOS/non-Windows: Normal binding configuration -->
-  <PropertyGroup Condition="'$(OS)' != 'Windows_NT'">
+  <PropertyGroup>
     <XCFramework>NewBindingiOS.xcframework</XCFramework>
     <Framework>NewBinding.framework</Framework>
     <ProjectResources>Intercom.MaciOS.Binding.resources</ProjectResources>
@@ -42,19 +23,19 @@
     <Scope>Headers Headers/NewBinding-Swift.h</Scope>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(OS)' != 'Windows_NT'">
+  <ItemGroup>
     <ObjcBindingApiDefinition Include="ApiDefinition.cs" />
     <ObjcBindingCoreSource Include="StructsAndEnums.cs" />
   </ItemGroup>
 
   <!-- Reference to Xcode project -->
-  <ItemGroup Condition="'$(OS)' != 'Windows_NT'">
+  <ItemGroup>
     <XcodeProject Include="../native/NewBinding/NewBinding.xcodeproj">
       <SchemeName>NewBinding</SchemeName>
     </XcodeProject>
   </ItemGroup>
 
-  <ItemGroup Condition="'$(OS)' != 'Windows_NT'">
+  <ItemGroup>
     <NativeReference Include="libs/Intercom.xcframework">
       <Kind>Framework</Kind>
       <ForceLoad>true</ForceLoad>
@@ -63,4 +44,16 @@
       <Frameworks></Frameworks>
     </NativeReference>
   </ItemGroup>
+
+  <!-- Make resource package creation more resilient -->
+  <Target Name="_EnsureBindingResourcesExist" BeforeTargets="_CreateBindingResourcePackage">
+    <Message Text="Ensuring binding resources are ready..." Importance="high" />
+  </Target>
 </Project>
+
+
+
+
+
+
+

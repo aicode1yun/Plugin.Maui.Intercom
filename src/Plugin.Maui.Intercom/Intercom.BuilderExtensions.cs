@@ -1,4 +1,7 @@
-﻿namespace Plugin.Maui.Intercom;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Maui.Hosting;
+
+namespace Plugin.Maui.Intercom;
 
 public static class IntercomServiceExtensions
 {

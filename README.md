@@ -192,6 +192,33 @@ Intercom.Default.SetBottomPadding(100);
 Intercom.Default.Logout();
 ```
 
+## Building from Source
+
+### Prerequisites (Windows)
+
+**⚠️ IMPORTANT:** On Windows, you must enable long path support to build the iOS bindings.
+
+1. Open PowerShell as Administrator
+2. Run: `New-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem' -Name 'LongPathsEnabled' -Value 1 -PropertyType DWORD -Force`
+3. Restart your computer
+
+### Quick Build
+
+From the repository root:
+
+```powershell
+.\build.ps1
+```
+
+### Manual Build
+
+```powershell
+cd src
+dotnet build Plugin.Maui.Intercom.sln
+```
+
+For detailed build instructions, troubleshooting, and development tips, see [BUILD.md](src/BUILD.md).
+
 ### Dependency Injection
 
 You can also use dependency injection:
