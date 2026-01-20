@@ -3,22 +3,24 @@
 
 `Plugin.Maui.Intercom` provides the ability to add [Intercom](https://www.intercom.com/) to your .NET MAUI application using [Native Library Interop](https://github.com/CommunityToolkit/Maui.NativeLibraryInterop) (NLI).
 
-## Should you use this yet?
+## Status
 
-**NO**, this is a work in progress and not ready for production use.
+Both Android and iOS platforms are working.
 
-![Working on Android](android.png)
-
-## What works so far?
-
-- [x] Can build without error
-- [x] Callback from platform into .net land works (android)
-- [x] Can initialize Intercom (runtime) without error
-- [x] Can register a user without error 
-- [x] Can show the Intercom Messenger
-- [ ] Can compose messages
-- [ ] Works end-to-end on Android
-- [ ] Works end-to-end on iOS
+| Feature | Android | iOS |
+|---------|---------|-----|
+| Initialize | Yes | Yes |
+| Register (unidentified) | Yes | Yes |
+| Register with UserId | Yes | Yes |
+| Register with Email | Yes | Yes |
+| Logout | Yes | Yes |
+| Present Messenger | Yes | Yes |
+| Present Help Center | Yes | Yes |
+| Present Support Center | Yes | Yes |
+| Present Carousel | Yes | Yes |
+| Set User Hash | Yes | Yes |
+| Set Visibility | Yes | Yes |
+| Set Bottom Padding | Yes | Yes |
 
 ## Install Plugin
 
@@ -32,99 +34,244 @@ Install with the dotnet CLI: `dotnet add package Plugin.Maui.Intercom`, or throu
 
 | Platform | Minimum Version Supported |
 |----------|---------------------------|
-| iOS      | 11+                       |
-| macOS    | 10.15+                    |
+| iOS      | 15+                       |
 | Android  | 5.0 (API 21)              |
+
+### Native SDK Versions
+
+| Platform | Intercom SDK Version |
+|----------|---------------------|
+| Android  | 17.4.1              |
+| iOS      | Latest via SPM      |
+
+## Setup
+
+### MauiProgram.cs
+
+Register Intercom in your `MauiProgram.cs`:
+
+```csharp
+using Plugin.Maui.Intercom;
+
+public static class MauiProgram
+{
+    public static MauiApp CreateMauiApp()
+    {
+        var builder = MauiApp.CreateBuilder();
+        builder
+            .UseMauiApp<App>()
+            .UseIntercom()  // Add this line
+            .ConfigureFonts(fonts =>
+            {
+                fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+            });
+
+        return builder.Build();
+    }
+}
+```
+
+### Android Configuration
+
+Add the following permissions to your `Platforms/Android/AndroidManifest.xml`:
+
+```xml
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+<uses-permission android:name="android.permission.INTERNET" />
+```
+
+### iOS Configuration
+
+No additional configuration is required for iOS.
 
 ## API Usage
 
-`Plugin.Maui.Intercom` provides the `Intercom` class that has a single property `Property` that you can get or set.
+### Initialization
 
-You can either use it as a static class, e.g.: `Intercom.Default.Property = 1` or with dependency injection: `builder.Services.AddSingleton<IIntercom>(Intercom.Default);`
+Initialize Intercom early in your app's lifecycle (e.g., in `App.xaml.cs` or your main page):
 
-### Permissions
+```csharp
+using Plugin.Maui.Intercom;
 
-Before you can start using Feature, you will need to request the proper permissions on each platform.
+// Initialize with your Intercom credentials
+Intercom.Default.Initialize("your-api-key", "your-app-id");
+```
 
-#### iOS
+You can find your API key and App ID in your [Intercom settings](https://app.intercom.com/a/apps/_/settings/android).
 
-No permissions are needed for iOS.
+### User Registration
 
-#### Android
+#### Register an unidentified user
 
-No permissions are needed for Android.
+```csharp
+Intercom.Default.Register(
+    onSuccess: () => Console.WriteLine("User registered successfully"),
+    onFailure: (error) => Console.WriteLine($"Registration failed: {error}")
+);
+```
+
+#### Register with User ID
+
+```csharp
+Intercom.Default.RegisterWithUserId(
+    "user-123",
+    onSuccess: () => Console.WriteLine("User registered"),
+    onFailure: (error) => Console.WriteLine($"Failed: {error}")
+);
+```
+
+#### Register with Email
+
+```csharp
+Intercom.Default.RegisterWithEmail(
+    "user@example.com",
+    onSuccess: () => Console.WriteLine("User registered"),
+    onFailure: (error) => Console.WriteLine($"Failed: {error}")
+);
+```
+
+### Identity Verification (Recommended)
+
+For enhanced security, use [Identity Verification](https://developers.intercom.com/docs/build-an-integration/learn-more/security/identity-verification/identity-verification-web-ios/):
+
+```csharp
+// Generate the user hash on your server using HMAC-SHA256
+// with your Intercom secret key and the user's identifier
+Intercom.Default.SetUserHash("hmac-sha256-hash");
+```
+
+### Presenting Intercom UI
+
+#### Show Messenger
+
+```csharp
+// Show messenger without a pre-filled message
+Intercom.Default.PresentMessenger(null);
+
+// Show messenger with a pre-filled message
+Intercom.Default.PresentMessenger("I need help with...");
+```
+
+#### Show Help Center
+
+```csharp
+Intercom.Default.PresentHelpCenter();
+```
+
+#### Show Support Center
+
+```csharp
+Intercom.Default.PresentSupportCenter();
+```
+
+#### Show a Carousel
+
+```csharp
+Intercom.Default.PresentCarousel("carousel-id");
+```
+
+### Customization
+
+#### Show/Hide Messenger Launcher
+
+```csharp
+Intercom.Default.SetVisible(true);  // Show launcher
+Intercom.Default.SetVisible(false); // Hide launcher
+```
+
+#### Adjust Bottom Padding
+
+```csharp
+// Add 100 pixels of padding from the bottom
+Intercom.Default.SetBottomPadding(100);
+```
+
+### Logout
+
+```csharp
+Intercom.Default.Logout();
+```
 
 ### Dependency Injection
 
-You will first need to register the `Feature` with the `MauiAppBuilder` following the same pattern that the .NET MAUI Essentials libraries follow.
+You can also use dependency injection:
 
 ```csharp
-builder.Services.AddSingleton(Intercom.Default);
-```
+// In MauiProgram.cs
+builder.Services.AddSingleton<IIntercom>(Intercom.Default);
 
-You can then enable your classes to depend on `IFeature` as per the following example.
-
-```csharp
-public class FeatureViewModel
+// In your ViewModel or Page
+public class MyViewModel
 {
     private readonly IIntercom _intercom;
 
-    public FeatureViewModel(IIntercom intercom)
+    public MyViewModel(IIntercom intercom)
     {
         _intercom = intercom;
     }
 
-    public void StartFeature()
+    public void ShowMessenger()
     {
-        _intercom.Initialize("", "");
+        _intercom.PresentMessenger(null);
     }
 }
 ```
 
-### Straight usage
-
-Alternatively if you want to skip using the dependency injection approach you can use the `Feature.Default` property.
+## Complete Example
 
 ```csharp
-public class FeatureViewModel
+public partial class MainPage : ContentPage
 {
-    public void StartFeature()
+    public MainPage()
     {
-        Intercom.Default.Initialize("", "");
+        InitializeComponent();
+
+        // Initialize Intercom
+        Intercom.Default.Initialize("your-api-key", "your-app-id");
+    }
+
+    private void OnLoginClicked(object sender, EventArgs e)
+    {
+        // Register user after login
+        Intercom.Default.RegisterWithUserId(
+            "user-123",
+            onSuccess: () =>
+            {
+                // Optionally set user hash for identity verification
+                Intercom.Default.SetUserHash("server-generated-hash");
+            },
+            onFailure: (error) =>
+            {
+                DisplayAlert("Error", $"Failed to register: {error}", "OK");
+            }
+        );
+    }
+
+    private void OnHelpClicked(object sender, EventArgs e)
+    {
+        Intercom.Default.PresentMessenger(null);
+    }
+
+    private void OnLogoutClicked(object sender, EventArgs e)
+    {
+        Intercom.Default.Logout();
     }
 }
 ```
 
-### Intercom
+## Troubleshooting
 
-Once you have created a `Intercom` you can interact with it in the following ways:
+### Android: Compose Version Mismatch
 
-#### Events
+If you encounter runtime crashes related to `NoSuchMethodError` in Compose classes, ensure you're using Intercom SDK 17.4.1 or later, which is compatible with AndroidX Compose BOM 2025.11.01.
 
-##### `ReadingChanged`
+### iOS: Build on Windows
 
-Occurs when feature reading changes.
+iOS builds require macOS. The sample project is configured to skip iOS targets on Windows to avoid build errors.
 
-#### Properties
+## Acknowledgements
 
-##### `IsSupported`
+This project could not have come to be without these projects and people, thank you!
 
-Gets a value indicating whether reading the feature is supported on this device.
-
-##### `IsMonitoring`
-
-Gets a value indicating whether the feature is actively being monitored.
-
-#### Methods
-
-##### `Start()`
-
-Start monitoring for changes to the feature.
-
-##### `Stop()`
-
-Stop monitoring for changes to the feature.
-
-# Acknowledgements
-
-This project could not have came to be without these projects and people, thank you! <3
+- [.NET MAUI Community Toolkit](https://github.com/CommunityToolkit/Maui) - For the Native Library Interop pattern
+- [Intercom](https://www.intercom.com/) - For their excellent customer messaging platform

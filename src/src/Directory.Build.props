@@ -1,0 +1,7 @@
+<Project>
+  <PropertyGroup>
+    <!-- Shorten paths to avoid Windows MAX_PATH issues with iOS bindings -->
+    <IntermediateOutputPath>$(MSBuildProjectDirectory)\obj\</IntermediateOutputPath>
+    <BaseIntermediateOutputPath>$(MSBuildProjectDirectory)\obj\</BaseIntermediateOutputPath>
+  </PropertyGroup>
+</Project>

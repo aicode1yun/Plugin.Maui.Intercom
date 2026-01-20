@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Plugin.Maui.Intercom is a .NET MAUI plugin that provides Intercom integration using Native Library Interop (NLI). It wraps the native Intercom SDK for Android and iOS/macOS platforms.
 
-**Status**: Work in progress - Android partially working, iOS not yet implemented.
+**Status**: Both Android and iOS platforms are working.
 
 ## Build Commands
 
@@ -57,7 +57,7 @@ This project uses the MAUI Native Library Interop pattern:
 The plugin uses file suffixes for platform-specific implementations:
 - `*.shared.cs` - Shared code (all platforms)
 - `*.android.cs` - Android-specific implementation
-- `*.macios.cs` - iOS/macOS-specific implementation (currently stubbed with NotImplementedException)
+- `*.macios.cs` - iOS/macOS-specific implementation
 - `*.net.cs` - Generic .NET fallback
 
 ### Key Classes
@@ -71,9 +71,11 @@ The plugin uses file suffixes for platform-specific implementations:
 ### Android Native Dependencies
 
 The Android binding includes numerous AAR files in `src/android/Intercom.Android.Binding/Jars/`:
-- Intercom SDK (15.10.1)
-- Coil image loading library
+- Intercom SDK (17.4.1)
+- Coil image loading library (2.7.0)
 - Various AndroidX Compose dependencies
+
+Note: The Intercom SDK version must be compatible with the Xamarin.AndroidX.Compose packages. Version 17.4.1 is compatible with Compose BOM 2025.11.01.
 
 Many Xamarin.AndroidX packages are pinned to specific versions in the .csproj to avoid downgrade warnings.
 
