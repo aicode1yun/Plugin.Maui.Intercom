@@ -77,7 +77,7 @@ jobs:
             dotnet tool install --global minver-cli
             git fetch --tags
             git tag
-            $version = minver --auto-increment minor --build-metadata build --verbosity trace
+            $version = minver --tag-prefix v --auto-increment minor --verbosity trace
             echo "PACKAGE_VERSION=$version" >> $env:GITHUB_ENV
             echo "version=$version" >> $env:GITHUB_OUTPUT
 
