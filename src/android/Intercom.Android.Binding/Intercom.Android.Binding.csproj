@@ -213,12 +213,12 @@
     <AndroidLibrary Include="Jars\coil-gif-2.7.0.aar" Bind="false" Visible="false" />
     <AndroidLibrary Remove="Jars\coil-video-2.7.0.aar" />
     <AndroidLibrary Include="Jars\coil-video-2.7.0.aar" Bind="false" Visible="false" />
-    <AndroidLibrary Remove="Jars\intercom-sdk-base-15.10.1.aar" />
-    <AndroidLibrary Include="Jars\intercom-sdk-base-15.10.1.aar" Bind="false" Visible="false" />
-    <AndroidLibrary Remove="Jars\intercom-sdk-ui-15.10.1.aar" />
-    <AndroidLibrary Include="Jars\intercom-sdk-ui-15.10.1.aar" Bind="false" Visible="false" />
-    <AndroidLibrary Remove="Jars\intercom-sdk-lightcompressor-15.10.1.aar" />
-    <AndroidLibrary Include="Jars\intercom-sdk-lightcompressor-15.10.1.aar" Bind="false" Visible="false" />
+    <AndroidLibrary Remove="Jars\intercom-sdk-base-17.4.1.aar" />
+    <AndroidLibrary Include="Jars\intercom-sdk-base-17.4.1.aar" Bind="false" Visible="false" />
+    <AndroidLibrary Remove="Jars\intercom-sdk-ui-17.4.1.aar" />
+    <AndroidLibrary Include="Jars\intercom-sdk-ui-17.4.1.aar" Bind="false" Visible="false" />
+    <AndroidLibrary Remove="Jars\intercom-sdk-lightcompressor-17.4.1.aar" />
+    <AndroidLibrary Include="Jars\intercom-sdk-lightcompressor-17.4.1.aar" Bind="false" Visible="false" />
     <AndroidLibrary Remove="Jars\nexus-client-android-6.3.4.aar" />
     <AndroidLibrary Include="Jars\nexus-client-android-6.3.4.aar" Bind="false" Visible="false" />
     <AndroidLibrary Remove="Jars\paging-compose-release.aar" />
