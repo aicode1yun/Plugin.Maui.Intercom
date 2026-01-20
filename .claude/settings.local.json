@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"D:\\\\Github\\\\Plugin.Maui.Intercom\" -Recurse -Filter \"*.sln\")",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(dir /s /b \"D:\\\\Github\\\\Plugin.Maui.Intercom\\\\*.sln\")",
+      "mcp__visual-studio__solution_info",
+      "mcp__visual-studio__project_list",
+      "mcp__visual-studio__build_solution",
+      "mcp__visual-studio__build_status",
+      "Bash(dotnet build:*)",
+      "mcp__visual-studio__clean_solution",
+      "mcp__visual-studio__document_list",
+      "mcp__visual-studio__build_project"
+    ]
+  }
+}

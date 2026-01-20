@@ -45,9 +45,27 @@
     </NativeReference>
   </ItemGroup>
 
-  <!-- Make resource package creation more resilient -->
-  <Target Name="_EnsureBindingResourcesExist" BeforeTargets="_CreateBindingResourcePackage">
-    <Message Text="Ensuring binding resources are ready..." Importance="high" />
+  <!-- Make resource package creation more resilient on Windows/remote builds.
+       Some xcframeworks do not ship all *.private.swiftinterface files.
+       The packaging target attempts to copy them and fails with MSB3030 if missing. -->
+  <Target Name="_FixupMissingSwiftPrivateInterfaces" BeforeTargets="_CreateBindingResourcePackage">
+    <ItemGroup>
+      <_MissingSwiftInterfaces Include="$(IntermediateOutputPath)$(ProjectResources)\**\Modules\*.swiftmodule\*.private.swiftinterface"
+                              Condition="!'%(FullPath)' == '' and !Exists('%(FullPath)')" />
+    </ItemGroup>
+
+    <Message Text="Skipping missing optional swift interfaces: @(_MissingSwiftInterfaces)"
+             Importance="low"
+             Condition="'@(_MissingSwiftInterfaces)' != ''" />
+
+    <Delete Files="@(_MissingSwiftInterfaces)" TreatErrorsAsWarnings="true" />
+  </Target>
+
+  <Target Name="_ExcludeSwiftPrivateInterfacesFromResourcePackage"
+          BeforeTargets="_CreateBindingResourcePackage">
+    <ItemGroup>
+      <BindingResourcePackageFiles Remove="**\*.private.swiftinterface" />
+    </ItemGroup>
   </Target>
 </Project>
 
