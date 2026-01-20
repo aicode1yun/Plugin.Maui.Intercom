@@ -7,11 +7,10 @@
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path="../.editorconfig" />
-    <File Path="../.github/workflows/ci-sample.yml" />
-    <File Path="../.github/workflows/ci.yml" />
-    <File Path="../.github/workflows/release-nuget.yml" />
     <File Path="../android.png" />
     <File Path="../README.md" />
+    <File Path=".github/workflows/publish.yml" />
+    <File Path="global.json" />
     <File Path="NuGet.Config" />
   </Folder>
   <Project Path="src/Plugin.Maui.Intercom/Plugin.Maui.Intercom.csproj" />

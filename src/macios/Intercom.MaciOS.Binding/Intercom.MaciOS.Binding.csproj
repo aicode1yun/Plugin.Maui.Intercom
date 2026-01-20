@@ -4,6 +4,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>true</ImplicitUsings>
     <IsBindingProject>true</IsBindingProject>
+    <IsPackable>false</IsPackable>
 
     <!--
       Enable trim analyzers for class libraries.
