@@ -1,0 +1,39 @@
+---
+active: true
+iteration: 27
+max_iterations: 30
+completion_promise: "TASK_COMPLETE"
+started_at: "2026-01-20T18:20:11Z"
+---
+
+
+Fix the iOS implementation in this Plugin.Maui.Intercom project.
+
+## Current State:
+- Android is now working
+- iOS implementation in src/Plugin.Maui.Intercom/Intercom.macios.cs is stubbed with NotImplementedException
+- Native binding project exists at src/macios/Intercom.MaciOS.Binding/
+- Need to wire up the native Intercom iOS SDK
+
+## Investigation Steps:
+- Examine src/macios/ binding project structure
+- Check what the native Intercom iOS SDK exposes
+- Review the commented-out code in Intercom.macios.cs for guidance
+- Understand the MauiIntercomMaciOS namespace and available methods
+
+## Implementation Requirements:
+- Uncomment and fix the iOS implementation in Intercom.macios.cs
+- Ensure native binding project correctly wraps Intercom iOS SDK
+- Handle Initialize, Register, RegisterWithUserId, RegisterWithEmail
+- Handle PresentMessenger, PresentHelpCenter, PresentSupportCenter
+- Handle Logout, SetUserHash, SetVisible, SetBottomPadding
+
+## Success Criteria:
+- iOS sample app builds without errors
+- App launches in iOS simulator
+- Intercom initializes successfully
+- Messenger opens
+- Can compose and send a message without crashing
+
+When ALL criteria are met, output exactly: TASK_COMPLETE
+

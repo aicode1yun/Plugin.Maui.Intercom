@@ -35,12 +35,13 @@
     </XcodeProject>
   </ItemGroup>
 
-<!--  <ItemGroup>-->
-<!--    <NativeReference Include="libs\Intercom.xcframework">-->
-<!--      <Kind>Framework</Kind>-->
-<!--      <ForceLoad>true</ForceLoad>-->
-<!--      <SmartLink>false</SmartLink>-->
-<!--      <Visible>true</Visible>-->
-<!--    </NativeReference>-->
-<!--  </ItemGroup>-->
+  <ItemGroup>
+    <NativeReference Include="libs/Intercom.xcframework">
+      <Kind>Framework</Kind>
+      <ForceLoad>true</ForceLoad>
+      <SmartLink>false</SmartLink>
+      <Visible>true</Visible>
+      <Frameworks></Frameworks>
+    </NativeReference>
+  </ItemGroup>
 </Project>
