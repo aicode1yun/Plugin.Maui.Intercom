@@ -4,6 +4,9 @@
   <!-- Shared version for all packages -->
   <PropertyGroup>
     <IntercomPluginVersion Condition="'$(IntercomPluginVersion)' == ''">0.5.9</IntercomPluginVersion>
+    <!-- Use Version if provided, otherwise use IntercomPluginVersion -->
+    <BindingPackageVersion Condition="'$(Version)' != ''">$(Version)</BindingPackageVersion>
+    <BindingPackageVersion Condition="'$(Version)' == ''">$(IntercomPluginVersion)</BindingPackageVersion>
   </PropertyGroup>
 </Project>
 
