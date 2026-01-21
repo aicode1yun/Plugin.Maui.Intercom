@@ -27,9 +27,10 @@
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageTags>dotnet-maui;maui;plugin;intercom;ios;binding;</PackageTags>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <Version Condition="'$(Version)' == ''">$(IntercomPluginVersion)</Version>
   </PropertyGroup>
 
   <PropertyGroup>

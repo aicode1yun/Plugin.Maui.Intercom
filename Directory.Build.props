@@ -1,5 +1,10 @@
 <Project>
   <!-- Shared MSBuild properties for all projects in the src directory -->
+  
+  <!-- Shared version for all packages -->
+  <PropertyGroup>
+    <IntercomPluginVersion Condition="'$(IntercomPluginVersion)' == ''">0.5.9</IntercomPluginVersion>
+  </PropertyGroup>
 </Project>
 
 
