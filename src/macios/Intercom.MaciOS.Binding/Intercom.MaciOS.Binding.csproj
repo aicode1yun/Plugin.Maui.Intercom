@@ -89,6 +89,20 @@
     </ItemGroup>
   </Target>
 
+  <!-- Remove .swiftmodule subfolders to avoid long path issues -->
+  <Target Name="_RemoveSwiftModuleFolders"
+          BeforeTargets="_CreateBindingResourcePackage">
+    <ItemGroup>
+      <_SwiftModulesToRemove Include="$(IntermediateOutputPath)$(ProjectResources)\**\*.swiftmodule" />
+    </ItemGroup>
+
+    <Message Text="Removing .swiftmodule folders to avoid long path issues: @(_SwiftModulesToRemove)"
+             Importance="high"
+             Condition="'@(_SwiftModulesToRemove)' != ''" />
+
+    <RemoveDir Directories="@(_SwiftModulesToRemove)" />
+  </Target>
+
   <!-- Package content -->
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="\" />
