@@ -195,36 +195,40 @@
   <!-- NUGET PACKAGING FOR BINDING PROJECT OUTPUTS -->
   <!-- ========================================== -->
 
-  <!-- Android: Include binding DLL and AAR files in the package -->
-  <PropertyGroup Condition="$(TargetFramework.Contains('-android'))">
-    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);IncludeAndroidBindingInPackage</TargetsForTfmSpecificContentInPackage>
+  <!-- Include binding DLLs as build output (proper library assemblies) -->
+  <PropertyGroup>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeBindingDllsInPackage</TargetsForTfmSpecificBuildOutput>
   </PropertyGroup>
 
-  <Target Name="IncludeAndroidBindingInPackage" Condition="$(TargetFramework.Contains('-android'))">
+  <Target Name="IncludeBindingDllsInPackage">
+    <ItemGroup Condition="$(TargetFramework.Contains('-android'))">
+      <BuildOutputInPackage Include="$(OutputPath)Intercom.Android.Binding.dll" />
+    </ItemGroup>
+    <ItemGroup Condition="$(TargetFramework.Contains('-ios')) Or $(TargetFramework.Contains('-maccatalyst'))">
+      <BuildOutputInPackage Include="$(OutputPath)Intercom.MaciOS.Binding.dll" />
+    </ItemGroup>
+  </Target>
+
+  <!-- Android: Include AAR files in the package -->
+  <PropertyGroup Condition="$(TargetFramework.Contains('-android'))">
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);IncludeAndroidNativeLibrariesInPackage</TargetsForTfmSpecificContentInPackage>
+  </PropertyGroup>
+
+  <Target Name="IncludeAndroidNativeLibrariesInPackage" Condition="$(TargetFramework.Contains('-android'))">
     <ItemGroup>
-      <!-- Include binding DLL -->
-      <TfmSpecificPackageFile Include="$(OutputPath)Intercom.Android.Binding.dll">
-        <PackagePath>lib\$(TargetFramework)\</PackagePath>
-      </TfmSpecificPackageFile>
-      <!-- Include AAR files -->
       <TfmSpecificPackageFile Include="$(OutputPath)*.aar">
         <PackagePath>lib\$(TargetFramework)\</PackagePath>
       </TfmSpecificPackageFile>
     </ItemGroup>
   </Target>
 
-  <!-- iOS: Include binding DLL and .resources folder with xcframework in the package -->
+  <!-- iOS: Include .resources folder with xcframework in the package -->
   <PropertyGroup Condition="$(TargetFramework.Contains('-ios')) Or $(TargetFramework.Contains('-maccatalyst'))">
-    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);IncludeiOSBindingInPackage</TargetsForTfmSpecificContentInPackage>
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);IncludeiOSNativeResourcesInPackage</TargetsForTfmSpecificContentInPackage>
   </PropertyGroup>
 
-  <Target Name="IncludeiOSBindingInPackage" Condition="$(TargetFramework.Contains('-ios')) Or $(TargetFramework.Contains('-maccatalyst'))">
+  <Target Name="IncludeiOSNativeResourcesInPackage" Condition="$(TargetFramework.Contains('-ios')) Or $(TargetFramework.Contains('-maccatalyst'))">
     <ItemGroup>
-      <!-- Include binding DLL -->
-      <TfmSpecificPackageFile Include="$(OutputPath)Intercom.MaciOS.Binding.dll">
-        <PackagePath>lib\$(TargetFramework)\</PackagePath>
-      </TfmSpecificPackageFile>
-      <!-- Include .resources folder with xcframework -->
       <_iOSResourceFiles Include="$(OutputPath)*.resources\**\*" />
       <TfmSpecificPackageFile Include="@(_iOSResourceFiles)">
         <PackagePath>lib\$(TargetFramework)\%(RecursiveDir)%(Filename)%(Extension)</PackagePath>
