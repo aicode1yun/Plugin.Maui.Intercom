@@ -30,7 +30,7 @@
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <Version Condition="'$(Version)' == ''">$(IntercomPluginVersion)</Version>
+    <Version>$(BindingPackageVersion)</Version>
   </PropertyGroup>
 
   <PropertyGroup>
