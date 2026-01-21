@@ -87,13 +87,13 @@ jobs:
       - name: Build and Pack iOS Binding
         run: dotnet pack src/macios/Intercom.MaciOS.Binding/Intercom.MaciOS.Binding.csproj --configuration Release --output ${{ env.NuGetDirectory }} -p:Version=${{ env.PACKAGE_VERSION }}
 
-      - name: Add Local NuGet Source
-        run: dotnet nuget add source ${{ env.NuGetDirectory }} --name LocalPackages
+      - name: List Packed Binding Packages
+        run: Get-ChildItem ${{ env.NuGetDirectory }} -Filter *.nupkg
 
-      - name: Build
-        run: dotnet build src/Plugin.Maui.Intercom/Plugin.Maui.Intercom.csproj --configuration Release -p:Version=${{ env.PACKAGE_VERSION }}
+      - name: Build Main Package
+        run: dotnet build src/Plugin.Maui.Intercom/Plugin.Maui.Intercom.csproj --configuration Release -p:Version=${{ env.PACKAGE_VERSION }} --source ${{ env.NuGetDirectory }} --source https://api.nuget.org/v3/index.json
 
-      - name: Pack
+      - name: Pack Main Package
         run: dotnet pack src/Plugin.Maui.Intercom/Plugin.Maui.Intercom.csproj --configuration Release --output ${{ env.NuGetDirectory }} --no-build -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg -p:Version=${{ env.PACKAGE_VERSION }}
 
       - name: Prepare Artifacts
