@@ -4,7 +4,7 @@
     <SupportedOSPlatformVersion>21</SupportedOSPlatformVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <IsPackable>false</IsPackable>
+    <IsPackable>true</IsPackable>
     <!--
       Enable trim analyzers for Android class libraries.
       To learn more, see: https://learn.microsoft.com/dotnet/core/deploying/trimming/prepare-libraries-for-trimming
@@ -14,6 +14,26 @@
       NOTE: you can simply add .aar or .jar files in this directory to be included in the project.
       To learn more, see: https://learn.microsoft.com/dotnet/maui/migration/android-binding-projects
     -->
+  </PropertyGroup>
+
+  <!-- NuGet Package Properties -->
+  <PropertyGroup>
+    <PackageId>Plugin.Maui.Intercom.Android.Binding</PackageId>
+    <Title>Intercom Android Bindings for Plugin.Maui.Intercom</Title>
+    <Authors>kfrancis</Authors>
+    <Description>Android native bindings for Intercom SDK. This package is a dependency of Plugin.Maui.Intercom.</Description>
+    <Copyright>Copyright © kfrancis</Copyright>
+    <PackageProjectUrl>https://github.com/kfrancis/Plugin.Maui.Intercom</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/kfrancis/Plugin.Maui.Intercom</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>dotnet-maui;maui;plugin;intercom;android;binding;</PackageTags>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <Version>$(BindingPackageVersion)</Version>
   </PropertyGroup>
 
   <!-- Reference to Android project -->
@@ -232,5 +252,10 @@
     
     <AndroidLibrary Remove="Jars\retrofit2-kotlinx-serialization-converter-1.0.0.jar" Visible="false" />
     <AndroidJavaLibrary Include="Jars\retrofit2-kotlinx-serialization-converter-1.0.0.jar" Visible="false" />
+  </ItemGroup>
+
+  <!-- Package content -->
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 </Project>

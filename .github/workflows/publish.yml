@@ -32,6 +32,7 @@ env:
   DOTNET_SYSTEM_CONSOLE_ALLOW_ANSI_COLOR_REDIRECTION: 1
   DOTNET_NOLOGO: true
   NuGetDirectory: ${{ github.workspace}}/nuget
+  NuGetSource: https://api.nuget.org/v3/index.json
 
 defaults:
   run:
@@ -81,10 +82,22 @@ jobs:
             echo "PACKAGE_VERSION=$version" >> $env:GITHUB_ENV
             echo "version=$version" >> $env:GITHUB_OUTPUT
 
-      - name: Build
+      - name: Build and Pack Android Binding
+        run: dotnet pack src/android/Intercom.Android.Binding/Intercom.Android.Binding.csproj --configuration Release --output ${{ env.NuGetDirectory }} -p:Version=${{ env.PACKAGE_VERSION }}
+
+      - name: Build and Pack iOS Binding
+        run: dotnet pack src/macios/Intercom.MaciOS.Binding/Intercom.MaciOS.Binding.csproj --configuration Release --output ${{ env.NuGetDirectory }} -p:Version=${{ env.PACKAGE_VERSION }}
+
+      - name: List Packed Binding Packages
+        run: Get-ChildItem ${{ env.NuGetDirectory }} -Filter *.nupkg
+
+      - name: Add Local NuGet Source
+        run: dotnet nuget add source ${{ env.NuGetDirectory }} --name LocalBindings
+
+      - name: Build Main Package
         run: dotnet build src/Plugin.Maui.Intercom/Plugin.Maui.Intercom.csproj --configuration Release -p:Version=${{ env.PACKAGE_VERSION }}
 
-      - name: Pack
+      - name: Pack Main Package
         run: dotnet pack src/Plugin.Maui.Intercom/Plugin.Maui.Intercom.csproj --configuration Release --output ${{ env.NuGetDirectory }} --no-build -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg -p:Version=${{ env.PACKAGE_VERSION }}
 
       - name: Prepare Artifacts
@@ -127,5 +140,5 @@ jobs:
         shell: pwsh
         run: |
           foreach($file in (Get-ChildItem "${{ env.NuGetDirectory }}" -Recurse -Include *.nupkg)) {
-            dotnet nuget push $file --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+            dotnet nuget push $file --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source ${{ env.NuGetSource }} --skip-duplicate
           }
