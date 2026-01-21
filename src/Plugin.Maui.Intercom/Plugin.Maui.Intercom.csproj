@@ -229,7 +229,13 @@
 
   <Target Name="IncludeiOSNativeResourcesInPackage" Condition="$(TargetFramework.Contains('-ios')) Or $(TargetFramework.Contains('-maccatalyst'))">
     <ItemGroup>
+      <!-- Include all files from .resources folders -->
       <_iOSResourceFiles Include="$(OutputPath)*.resources\**\*" />
+      <!-- Exclude dSYM folders (debug symbols) which contain symlinks that cause packaging issues -->
+      <_iOSResourceFiles Remove="$(OutputPath)*.resources\**\dSYMs\**\*" />
+      <!-- Exclude .private.swiftinterface files which may not exist and cause errors -->
+      <_iOSResourceFiles Remove="$(OutputPath)*.resources\**\*.private.swiftinterface" />
+      
       <TfmSpecificPackageFile Include="@(_iOSResourceFiles)">
         <PackagePath>lib\$(TargetFramework)\%(RecursiveDir)%(Filename)%(Extension)</PackagePath>
       </TfmSpecificPackageFile>
