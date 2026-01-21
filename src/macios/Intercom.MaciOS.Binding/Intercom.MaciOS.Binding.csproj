@@ -4,13 +4,32 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>true</ImplicitUsings>
     <IsBindingProject>true</IsBindingProject>
-    <IsPackable>false</IsPackable>
+    <IsPackable>true</IsPackable>
 
     <!--
       Enable trim analyzers for class libraries.
       To learn more, see: https://learn.microsoft.com/dotnet/core/deploying/trimming/prepare-libraries-for-trimming
     -->
     <IsTrimmable>true</IsTrimmable>
+  </PropertyGroup>
+
+  <!-- NuGet Package Properties -->
+  <PropertyGroup>
+    <PackageId>Plugin.Maui.Intercom.iOS.Binding</PackageId>
+    <Title>Intercom iOS Bindings for Plugin.Maui.Intercom</Title>
+    <Authors>kfrancis</Authors>
+    <Description>iOS native bindings for Intercom SDK. This package is a dependency of Plugin.Maui.Intercom.</Description>
+    <Copyright>Copyright © kfrancis</Copyright>
+    <PackageProjectUrl>https://github.com/kfrancis/Plugin.Maui.Intercom</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/kfrancis/Plugin.Maui.Intercom</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>dotnet-maui;maui;plugin;intercom;ios;binding;</PackageTags>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -68,6 +87,11 @@
       <BindingResourcePackageFiles Remove="**\*.private.swiftinterface" />
     </ItemGroup>
   </Target>
+
+  <!-- Package content -->
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
 </Project>
 
 

@@ -81,6 +81,15 @@ jobs:
             echo "PACKAGE_VERSION=$version" >> $env:GITHUB_ENV
             echo "version=$version" >> $env:GITHUB_OUTPUT
 
+      - name: Build and Pack Android Binding
+        run: dotnet pack src/android/Intercom.Android.Binding/Intercom.Android.Binding.csproj --configuration Release --output ${{ env.NuGetDirectory }} -p:Version=${{ env.PACKAGE_VERSION }}
+
+      - name: Build and Pack iOS Binding
+        run: dotnet pack src/macios/Intercom.MaciOS.Binding/Intercom.MaciOS.Binding.csproj --configuration Release --output ${{ env.NuGetDirectory }} -p:Version=${{ env.PACKAGE_VERSION }}
+
+      - name: Add Local NuGet Source
+        run: dotnet nuget add source ${{ env.NuGetDirectory }} --name LocalPackages
+
       - name: Build
         run: dotnet build src/Plugin.Maui.Intercom/Plugin.Maui.Intercom.csproj --configuration Release -p:Version=${{ env.PACKAGE_VERSION }}
 

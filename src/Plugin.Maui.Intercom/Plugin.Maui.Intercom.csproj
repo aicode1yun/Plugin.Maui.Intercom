@@ -117,6 +117,9 @@
 
   <!-- Android dependencies - these must be declared here to flow to consumers since binding project uses PrivateAssets=all -->
   <ItemGroup Condition="$(TargetFramework.Contains('-android')) == true">
+    <!-- Reference Android binding as a package dependency -->
+    <PackageReference Include="Plugin.Maui.Intercom.Android.Binding" Version="$(Version)" />
+    
     <PackageReference Include="GoogleGson" Version="2.13.0.1" />
     <PackageReference Include="Square.OkIO" Version="3.9.1.3" />
     <PackageReference Include="Square.Retrofit2" Version="2.11.0.5" />
@@ -182,64 +185,10 @@
     <None Include="..\..\nuget.png" PackagePath="icon.png" Pack="true" />
     <None Include="..\..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
-  <!-- Reference to Android Binding project - PrivateAssets=all prevents it from becoming a package dependency -->
-  <ItemGroup Condition="$(TargetFramework.Contains('android'))">
-    <ProjectReference Include="..\android\Intercom.Android.Binding\Intercom.Android.Binding.csproj" PrivateAssets="all" />
-  </ItemGroup>
-  <!-- Reference to MaciOS Binding project - PrivateAssets=all prevents it from becoming a package dependency -->
+  
+  <!-- iOS binding package dependency -->
   <ItemGroup Condition="$(TargetFramework.Contains('ios')) Or $(TargetFramework.Contains('maccatalyst'))">
-    <ProjectReference Include="..\macios\Intercom.MaciOS.Binding\Intercom.MaciOS.Binding.csproj" PrivateAssets="all" />
+    <PackageReference Include="Plugin.Maui.Intercom.iOS.Binding" Version="$(Version)" />
   </ItemGroup>
-
-  <!-- ========================================== -->
-  <!-- NUGET PACKAGING FOR BINDING PROJECT OUTPUTS -->
-  <!-- ========================================== -->
-
-  <!-- Include binding DLLs as build output (proper library assemblies) -->
-  <PropertyGroup>
-    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeBindingDllsInPackage</TargetsForTfmSpecificBuildOutput>
-  </PropertyGroup>
-
-  <Target Name="IncludeBindingDllsInPackage">
-    <ItemGroup Condition="$(TargetFramework.Contains('-android'))">
-      <BuildOutputInPackage Include="$(OutputPath)Intercom.Android.Binding.dll" />
-    </ItemGroup>
-    <ItemGroup Condition="$(TargetFramework.Contains('-ios')) Or $(TargetFramework.Contains('-maccatalyst'))">
-      <BuildOutputInPackage Include="$(OutputPath)Intercom.MaciOS.Binding.dll" />
-    </ItemGroup>
-  </Target>
-
-  <!-- Android: Include AAR files in the package -->
-  <PropertyGroup Condition="$(TargetFramework.Contains('-android'))">
-    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);IncludeAndroidNativeLibrariesInPackage</TargetsForTfmSpecificContentInPackage>
-  </PropertyGroup>
-
-  <Target Name="IncludeAndroidNativeLibrariesInPackage" Condition="$(TargetFramework.Contains('-android'))">
-    <ItemGroup>
-      <TfmSpecificPackageFile Include="$(OutputPath)*.aar">
-        <PackagePath>lib\$(TargetFramework)\</PackagePath>
-      </TfmSpecificPackageFile>
-    </ItemGroup>
-  </Target>
-
-  <!-- iOS: Include .resources folder with xcframework in the package -->
-  <PropertyGroup Condition="$(TargetFramework.Contains('-ios')) Or $(TargetFramework.Contains('-maccatalyst'))">
-    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);IncludeiOSNativeResourcesInPackage</TargetsForTfmSpecificContentInPackage>
-  </PropertyGroup>
-
-  <Target Name="IncludeiOSNativeResourcesInPackage" Condition="$(TargetFramework.Contains('-ios')) Or $(TargetFramework.Contains('-maccatalyst'))">
-    <ItemGroup>
-      <!-- Include all files from .resources folders -->
-      <_iOSResourceFiles Include="$(OutputPath)*.resources\**\*" />
-      <!-- Exclude dSYM folders (debug symbols) which contain symlinks that cause packaging issues -->
-      <_iOSResourceFiles Remove="$(OutputPath)*.resources\**\dSYMs\**\*" />
-      <!-- Exclude .private.swiftinterface files which may not exist and cause errors -->
-      <_iOSResourceFiles Remove="$(OutputPath)*.resources\**\*.private.swiftinterface" />
-      
-      <TfmSpecificPackageFile Include="@(_iOSResourceFiles)">
-        <PackagePath>lib\$(TargetFramework)\%(RecursiveDir)%(Filename)%(Extension)</PackagePath>
-      </TfmSpecificPackageFile>
-    </ItemGroup>
-  </Target>
 
 </Project>
