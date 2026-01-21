@@ -7,20 +7,10 @@
 
 Both Android and iOS platforms are working.
 
-| Feature | Android | iOS |
-|---------|---------|-----|
-| Initialize | Yes | Yes |
-| Register (unidentified) | Yes | Yes |
-| Register with UserId | Yes | Yes |
-| Register with Email | Yes | Yes |
-| Logout | Yes | Yes |
-| Present Messenger | Yes | Yes |
-| Present Help Center | Yes | Yes |
-| Present Support Center | Yes | Yes |
-| Present Carousel | Yes | Yes |
-| Set User Hash | Yes | Yes |
-| Set Visibility | Yes | Yes |
-| Set Bottom Padding | Yes | Yes |
+<img width="403" height="696" alt="Screenshot 2026-01-20 134953" src="https://github.com/user-attachments/assets/9696d97e-87a2-450a-bd76-ed261101f2f0" />
+<img width="395" height="505" alt="Screenshot 2026-01-20 124137" src="https://github.com/user-attachments/assets/c4f5a049-cdbe-46fc-bce4-bc1b4260c8d2" />
+
+
 
 ## Install Plugin
 
