@@ -36,7 +36,7 @@
   <PropertyGroup>
     <XCFramework>NewBindingiOS.xcframework</XCFramework>
     <Framework>NewBinding.framework</Framework>
-    <ProjectResources>Intercom.MaciOS.Binding.resources</ProjectResources>
+    <ProjectResources>ios</ProjectResources>
     <RID>ios-arm64</RID>
     <SharpieOutput>sharpie-out</SharpieOutput>
     <Namespace>$(RootNameSpace)</Namespace>
@@ -87,20 +87,6 @@
     <ItemGroup>
       <BindingResourcePackageFiles Remove="**\*.private.swiftinterface" />
     </ItemGroup>
-  </Target>
-
-  <!-- Remove .swiftmodule subfolders to avoid long path issues -->
-  <Target Name="_RemoveSwiftModuleFolders"
-          BeforeTargets="_CreateBindingResourcePackage">
-    <ItemGroup>
-      <_SwiftModulesToRemove Include="$(IntermediateOutputPath)$(ProjectResources)\**\*.swiftmodule" />
-    </ItemGroup>
-
-    <Message Text="Removing .swiftmodule folders to avoid long path issues: @(_SwiftModulesToRemove)"
-             Importance="high"
-             Condition="'@(_SwiftModulesToRemove)' != ''" />
-
-    <RemoveDir Directories="@(_SwiftModulesToRemove)" />
   </Target>
 
   <!-- Package content -->
