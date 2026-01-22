@@ -36,7 +36,7 @@
   <PropertyGroup>
     <XCFramework>NewBindingiOS.xcframework</XCFramework>
     <Framework>NewBinding.framework</Framework>
-    <ProjectResources>Intercom.MaciOS.Binding.resources</ProjectResources>
+    <ProjectResources>ios</ProjectResources>
     <RID>ios-arm64</RID>
     <SharpieOutput>sharpie-out</SharpieOutput>
     <Namespace>$(RootNameSpace)</Namespace>
