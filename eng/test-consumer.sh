@@ -75,6 +75,7 @@ cat > "$APP_DIR/App.csproj" <<EOF
     <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
     <ApplicationVersion>1</ApplicationVersion>
     <SupportedOSPlatformVersion>15.0</SupportedOSPlatformVersion>
+    <RuntimeIdentifiers>ios-arm64;iossimulator-arm64</RuntimeIdentifiers>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Maui.Controls" Version="\$(MauiVersion)" />
