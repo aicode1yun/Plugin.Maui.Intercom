@@ -137,6 +137,7 @@ public class MainPage : ContentPage
 EOF
 
 cat > "$APP_DIR/Platforms/iOS/Program.cs" <<'EOF'
+using Foundation;
 using ObjCRuntime;
 using UIKit;
 
