@@ -7,6 +7,11 @@
     <!-- Use Version if provided, otherwise use IntercomPluginVersion -->
     <BindingPackageVersion Condition="'$(Version)' != ''">$(Version)</BindingPackageVersion>
     <BindingPackageVersion Condition="'$(Version)' == ''">$(IntercomPluginVersion)</BindingPackageVersion>
+
+    <!-- CI computes the version once (MinVer in the version job) and passes it as
+         -p:Version to every build/pack. Skip the in-project MinVer run in that case,
+         otherwise a shallow checkout without tags silently repacks as 0.0.0-alpha.0. -->
+    <MinVerSkip Condition="'$(Version)' != ''">true</MinVerSkip>
   </PropertyGroup>
 
   <!-- Centrally pinned tool/SDK versions.

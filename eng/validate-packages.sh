@@ -80,29 +80,30 @@ if z:
     libs = [n for n in names if n.startswith("lib/net10.0-ios") and n.endswith(".dll")]
     check(len(libs) >= 1, f"managed dll(s) under lib/net10.0-ios*: {libs}")
 
-    natives = [n for n in names if n.startswith("runtimes/")]
-    check(any("Intercom.framework/Intercom" in n and "ios-arm64/" in n.split("runtimes/")[1]
-              for n in natives),
-          "device Intercom.framework binary under runtimes/ios-arm64/native/")
-    check(any("iossimulator" in n and "Intercom.framework/Intercom" in n for n in natives),
-          "simulator Intercom.framework binary under runtimes/iossimulator-*/native/")
-    check(any(n.endswith("PrivacyInfo.xcprivacy") for n in natives),
-          "PrivacyInfo.xcprivacy shipped with the native framework")
-    for bundle in ("Intercom.bundle", "IntercomTranslations.bundle"):
-        check(any(bundle in n for n in natives), f"{bundle} resources present")
-
-    check(any(n.startswith("buildTransitive/") and n.endswith(".targets") for n in names),
-          "buildTransitive consumer .targets present")
-
-    device_natives = [n for n in natives if "/ios-arm64/" in n]
-    check(not any("simulator" in n.lower() for n in device_natives),
-          "no simulator slices leaked into the ios-arm64 runtimes tree")
-
-    # Framework must appear exactly once per RID tree.
-    device_fw_roots = {n.split("native/")[1].split("/")[0]
-                       for n in device_natives if "native/" in n and "Intercom.framework" in n}
-    check(len([r for r in device_fw_roots if r == "Intercom.xcframework"]) <= 1,
-          f"single Intercom.xcframework per RID (found roots: {sorted(device_fw_roots)})")
+    # Native assets ship via the classic iOS binding-resources sidecar:
+    # lib/<tfm>/<Assembly>.resources.zip containing the NativeReference xcframework.
+    # The .NET iOS SDK unpacks it in consuming apps and applies the NativeReference,
+    # which is the supported transitive mechanism for IsBindingProject packages.
+    import io
+    res_names = [n for n in names if n.endswith(".resources.zip")]
+    check(len(res_names) == 1, f"exactly one binding resources.zip ({res_names})")
+    if res_names:
+        rz = zipfile.ZipFile(io.BytesIO(z.read(res_names[0])))
+        rn = rz.namelist()
+        check("manifest" in rn, "resources.zip carries the binding manifest")
+        check("Intercom.xcframework/ios-arm64/Intercom.framework/Intercom" in rn,
+              "device Intercom.framework binary in resources.zip")
+        check(any(n.startswith("Intercom.xcframework/ios-arm64_x86_64-simulator/Intercom.framework/Intercom")
+                  for n in rn),
+              "simulator Intercom.framework binary in resources.zip")
+        check("Intercom.xcframework/ios-arm64/Intercom.framework/PrivacyInfo.xcprivacy" in rn,
+              "PrivacyInfo.xcprivacy shipped with the device framework")
+        for bundle in ("Intercom.bundle", "IntercomTranslations.bundle"):
+            check(any(f"/ios-arm64/Intercom.framework/{bundle}/" in n for n in rn),
+                  f"{bundle} resources present in device framework")
+        roots = {n.split("/")[0] for n in rn}
+        check(roots <= {"Intercom.xcframework", "manifest"},
+              f"resources.zip contains only the Intercom.xcframework (roots: {sorted(roots)})")
 
     # Absolute/build-machine paths in MSBuild assets.
     for n in names:
