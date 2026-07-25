@@ -219,6 +219,10 @@ dotnet build App.csproj -c Release -r iossimulator-arm64 --no-restore
 
 echo ""
 echo "── Device build (ios-arm64, unsigned) ──────────────────"
+# Clean between RID builds: the iOS toolchain caches target-platform state under
+# obj/ and otherwise tries to link the device build against simulator settings.
+rm -rf obj bin
+dotnet restore App.csproj --configfile "$APP_ROOT/NuGet.config"
 dotnet build App.csproj -c Release -r ios-arm64 --no-restore -p:EnableCodeSigning=false
 
 echo ""
