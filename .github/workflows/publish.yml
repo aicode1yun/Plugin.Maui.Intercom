@@ -81,11 +81,7 @@ jobs:
           echo "version=$version" >> $env:GITHUB_OUTPUT
 
   # ──────────────────────────────────────────────────────────────────────────
-  # Android is temporarily disabled while the iOS binding replacement lands;
-  # set ANDROID_ENABLED to true (and restore the main-package/deploy wiring)
-  # to re-enable.
   android:
-    if: false
     runs-on: windows-latest
     needs: [ version ]
     permissions:
@@ -197,7 +193,7 @@ jobs:
   # ──────────────────────────────────────────────────────────────────────────
   main-package:
     runs-on: macos-26
-    needs: [ version, ios-binding ]
+    needs: [ version, android, ios-binding ]
     permissions:
       contents: read
     steps:
@@ -213,8 +209,14 @@ jobs:
         with:
           global-json-file: 'global.json'
 
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
       - name: Install MAUI workloads
-        run: dotnet workload install maui-ios
+        run: dotnet workload install maui-ios maui-android
 
       - uses: actions/download-artifact@v5
         with:
@@ -235,13 +237,11 @@ jobs:
           </configuration>
           EOF
 
-      # Android is temporarily disabled: build/pack only the iOS target so the
-      # Android binding package is not required in the local feed.
-      - name: Build and pack main package (iOS only)
+      - name: Build and pack main package
         run: |
-          dotnet restore src/Plugin.Maui.Intercom/Plugin.Maui.Intercom.csproj --configfile nuget.local.config -p:TargetFrameworks=net10.0-ios -p:Version=${{ needs.version.outputs.version }}
-          dotnet build src/Plugin.Maui.Intercom/Plugin.Maui.Intercom.csproj -c Release --no-restore -p:TargetFrameworks=net10.0-ios -p:Version=${{ needs.version.outputs.version }}
-          dotnet pack src/Plugin.Maui.Intercom/Plugin.Maui.Intercom.csproj -c Release --no-build --output nuget -p:TargetFrameworks=net10.0-ios -p:Version=${{ needs.version.outputs.version }}
+          dotnet restore src/Plugin.Maui.Intercom/Plugin.Maui.Intercom.csproj --configfile nuget.local.config -p:Version=${{ needs.version.outputs.version }}
+          dotnet build src/Plugin.Maui.Intercom/Plugin.Maui.Intercom.csproj -c Release --no-restore -p:Version=${{ needs.version.outputs.version }}
+          dotnet pack src/Plugin.Maui.Intercom/Plugin.Maui.Intercom.csproj -c Release --no-build --output nuget -p:Version=${{ needs.version.outputs.version }}
 
       - name: Inspect generated nuspec
         run: |
@@ -250,7 +250,7 @@ jobs:
       - name: Validate package contents
         run: |
           chmod +x eng/validate-packages.sh
-          eng/validate-packages.sh --version ${{ needs.version.outputs.version }} --feed nuget --ios-only
+          eng/validate-packages.sh --version ${{ needs.version.outputs.version }} --feed nuget
 
       - uses: actions/upload-artifact@v4
         with:

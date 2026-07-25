@@ -8,7 +8,7 @@
 
 ## Status
 
-Both Android and iOS platforms are working. (The Android CI leg is temporarily disabled while the new iOS binding pipeline lands; the Android binding itself is unchanged and still builds locally.)
+Both Android and iOS platforms are working.
 
 <img width="403" height="696" alt="Screenshot 2026-01-20 134953" src="https://github.com/user-attachments/assets/9696d97e-87a2-450a-bd76-ed261101f2f0" />
 <img width="395" height="505" alt="Screenshot 2026-01-20 124137" src="https://github.com/user-attachments/assets/c4f5a049-cdbe-46fc-bce4-bc1b4260c8d2" />
