@@ -5,21 +5,23 @@
 # groups, native assets, and the absence of build-machine paths or simulator
 # slices where they don't belong. Runs on macOS and Linux (python3 + bash).
 #
-# Usage: eng/validate-packages.sh --version <pkg-version> --feed <dir-with-nupkgs>
+# Usage: eng/validate-packages.sh --version <pkg-version> --feed <dir-with-nupkgs> [--ios-only]
 set -euo pipefail
 
 VERSION=""
 FEED=""
+IOS_ONLY="false"
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --version) VERSION="$2"; shift 2 ;;
     --feed)    FEED="$(cd "$2" && pwd)"; shift 2 ;;
+    --ios-only) IOS_ONLY="true"; shift ;;
     *) echo "Unknown argument: $1" >&2; exit 2 ;;
   esac
 done
-[[ -n "$VERSION" && -n "$FEED" ]] || { echo "Usage: eng/validate-packages.sh --version <v> --feed <dir>" >&2; exit 2; }
+[[ -n "$VERSION" && -n "$FEED" ]] || { echo "Usage: eng/validate-packages.sh --version <v> --feed <dir> [--ios-only]" >&2; exit 2; }
 
-python3 - "$FEED" "$VERSION" <<'PYEOF'
+python3 - "$FEED" "$VERSION" "$IOS_ONLY" <<'PYEOF'
 import re
 import sys
 import zipfile
@@ -28,6 +30,7 @@ from xml.etree import ElementTree
 
 feed = Path(sys.argv[1])
 version = sys.argv[2]
+ios_only = len(sys.argv) > 3 and sys.argv[3] == "true"
 failures = []
 
 
@@ -113,8 +116,12 @@ if z:
     print(f"  dependency groups: { {k: sorted(v) for k, v in groups.items()} }")
 
 # ── Android binding package ────────────────────────────────────────────────
-print(f"\n== Plugin.Maui.Intercom.Android.Binding {version} ==")
-z, names = load("Plugin.Maui.Intercom.Android.Binding")
+z, names = (None, [])
+if ios_only:
+    print("\n== Plugin.Maui.Intercom.Android.Binding: SKIPPED (--ios-only) ==")
+else:
+    print(f"\n== Plugin.Maui.Intercom.Android.Binding {version} ==")
+    z, names = load("Plugin.Maui.Intercom.Android.Binding")
 if z:
     root, _ = nuspec(z, "Plugin.Maui.Intercom.Android.Binding")
     check(root.find(".//version").text == version, f"package version == {version}")
@@ -130,14 +137,16 @@ if z:
     check(root.find(".//version").text == version, f"package version == {version}")
     check(any(n.startswith("lib/net10.0-ios") and n.endswith("Plugin.Maui.Intercom.dll") for n in names),
           "iOS lib present")
-    check(any(n.startswith("lib/net10.0-android") and n.endswith("Plugin.Maui.Intercom.dll") for n in names),
-          "Android lib present")
+    if not ios_only:
+        check(any(n.startswith("lib/net10.0-android") and n.endswith("Plugin.Maui.Intercom.dll") for n in names),
+              "Android lib present")
 
     groups = dependency_groups(root)
     ios_groups = {tfm: deps for tfm, deps in groups.items() if "ios" in tfm.lower()}
     android_groups = {tfm: deps for tfm, deps in groups.items() if "android" in tfm.lower()}
     check(bool(ios_groups), f"iOS dependency group exists ({list(groups)})")
-    check(bool(android_groups), f"Android dependency group exists ({list(groups)})")
+    if not ios_only:
+        check(bool(android_groups), f"Android dependency group exists ({list(groups)})")
     for tfm, deps in ios_groups.items():
         check(deps.get("Plugin.Maui.Intercom.iOS.Binding") == version,
               f"{tfm} depends on iOS binding {version} (got {deps.get('Plugin.Maui.Intercom.iOS.Binding')})")

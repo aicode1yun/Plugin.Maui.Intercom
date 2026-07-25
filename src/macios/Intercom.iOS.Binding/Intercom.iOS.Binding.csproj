@@ -44,6 +44,16 @@
     <Version>$(BindingPackageVersion)</Version>
   </PropertyGroup>
 
+  <!-- Supplemental binding definitions for types the generator's ObjC pipeline
+       misses (classes from headers imported by the umbrella, NS_ENUMs, and the
+       Intercom members referencing them). bgen merges these with the generated
+       ApiDefinition.cs / StructsAndEnums.cs. -->
+  <ItemGroup>
+    <Compile Remove="ApiDefinitions.extra.cs;StructsAndEnums.extra.cs" />
+    <ObjcBindingApiDefinition Include="ApiDefinitions.extra.cs" />
+    <ObjcBindingCoreSource Include="StructsAndEnums.extra.cs" />
+  </ItemGroup>
+
   <!-- Package content -->
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="\" />
