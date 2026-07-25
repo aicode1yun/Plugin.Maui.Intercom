@@ -55,7 +55,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="GoogleGson" Version="2.13.0.1" />
+    <PackageReference Include="GoogleGson" Version="2.13.1.1" />
     <PackageReference Include="Square.OkIO">
       <Version>3.9.1.3</Version>
     </PackageReference>
@@ -66,7 +66,7 @@
     <PackageReference Include="XAB.Facebook.Shimmer" Version="0.5.0.4" />
     <PackageReference Include="XAB.FlexboxLayout" Version="3.0.0.2" />
     <PackageReference Include="Xamarin.Android.Glide">
-      <Version>4.16.0.12</Version>
+      <Version>4.16.0.14</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Activity">
       <Version>1.11.0</Version>
@@ -78,10 +78,10 @@
       <Version>1.9.1.5</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.AppCompat">
-      <Version>1.7.0.6</Version>
+      <Version>1.7.1.1</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.AppCompat.AppCompatResources">
-      <Version>1.7.0.6</Version>
+      <Version>1.7.1.1</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Collection">
       <Version>1.5.0.3</Version>
@@ -111,7 +111,7 @@
       <Version>1.9.2</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.ConstraintLayout">
-      <Version>2.2.1.1</Version>
+      <Version>2.2.1.3</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Core">
       <Version>1.17.0</Version>
@@ -123,13 +123,13 @@
       <Version>8.9.1.1</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.ExifInterface">
-      <Version>1.4.0.1</Version>
+      <Version>1.4.1.1</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Fragment">
-      <Version>1.8.6.1</Version>
+      <Version>1.8.8.1</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Fragment.Ktx">
-      <Version>1.8.6.1</Version>
+      <Version>1.8.8.1</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Legacy.Support.Core.UI">
       <Version>1.0.0.33</Version>
@@ -162,16 +162,16 @@
       <Version>1.6.1.1</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Navigation.Compose">
-      <Version>2.8.9.1</Version>
+      <Version>2.9.2.1</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Navigation.Runtime">
-      <Version>2.8.9.1</Version>
+      <Version>2.9.2.1</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Navigation.Runtime.Ktx">
-      <Version>2.8.9.1</Version>
+      <Version>2.9.2.1</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Navigation.UI.Ktx">
-      <Version>2.8.9.1</Version>
+      <Version>2.9.2.1</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Paging.Common">
       <Version>3.3.6.1</Version>
@@ -183,13 +183,13 @@
       <Version>1.4.1.5</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.RecyclerView">
-      <Version>1.4.0.1</Version>
+      <Version>1.4.0.3</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.VectorDrawable">
-      <Version>1.2.0.6</Version>
+      <Version>1.2.0.8</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.VectorDrawable.Animated">
-      <Version>1.2.0.6</Version>
+      <Version>1.2.0.8</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.Google.Accompanist.Permissions">
       <Version>0.37.2.1</Version>
@@ -204,7 +204,7 @@
       <Version>1.10.2.1</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.Google.Android.Material">
-      <Version>1.12.0.3</Version>
+      <Version>1.12.0.5</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.Kotlin.StdLib.Jdk8" Version="2.2.20" />
 
