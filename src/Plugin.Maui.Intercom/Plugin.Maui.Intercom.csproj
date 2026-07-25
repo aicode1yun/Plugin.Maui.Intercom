@@ -10,9 +10,7 @@
 
     <!-- Platform Support -->
 
-    <!-- MinVer Configuration -->
-    <MinVerTagPrefix>v</MinVerTagPrefix>
-    <MinVerSkip>false</MinVerSkip>
+    <!-- MinVer Configuration (skipped when CI passes -p:Version; see Directory.Build.props) -->
     <MinVerTagPrefix>v</MinVerTagPrefix>
 
 
