@@ -39,7 +39,7 @@ The platform binding packages (`Plugin.Maui.Intercom.iOS.Binding`, `Plugin.Maui.
 | Android  | 17.4.1              |
 | iOS      | 18.7.2              |
 
-> **Breaking change (0.6.0):** the plugin now targets .NET 10 only. .NET 9 (`net9.0-*`) consumers must stay on 0.5.x. The iOS binding was replaced: the former `MauiIntercomMaciOS` wrapper types and the public `DictionaryExtensions.ToNSDictionary` iOS helper were removed. The `IIntercom` interface itself is source-compatible, with one addition: `LogEvent(string name)` (iOS only; throws `NotSupportedException` on Android).
+> **Breaking change (0.7.0):** the plugin now targets .NET 10 only. .NET 9 (`net9.0-*`) consumers must stay on 0.6.x or earlier. The iOS binding was replaced: the former `MauiIntercomMaciOS` wrapper types and the public `DictionaryExtensions.ToNSDictionary` iOS helper were removed. The `IIntercom` interface itself is source-compatible, with one addition: `LogEvent(string name)` (iOS only; throws `NotSupportedException` on Android).
 
 ## Setup
 

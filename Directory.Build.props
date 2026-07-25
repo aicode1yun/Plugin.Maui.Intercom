@@ -3,7 +3,7 @@
 
   <!-- Shared version for all packages -->
   <PropertyGroup>
-    <IntercomPluginVersion Condition="'$(IntercomPluginVersion)' == ''">0.6.0</IntercomPluginVersion>
+    <IntercomPluginVersion Condition="'$(IntercomPluginVersion)' == ''">0.7.0</IntercomPluginVersion>
     <!-- Use Version if provided, otherwise use IntercomPluginVersion -->
     <BindingPackageVersion Condition="'$(Version)' != ''">$(Version)</BindingPackageVersion>
     <BindingPackageVersion Condition="'$(Version)' == ''">$(IntercomPluginVersion)</BindingPackageVersion>
