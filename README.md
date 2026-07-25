@@ -1,7 +1,10 @@
 ![](nuget.png)
 # Plugin.Maui.Intercom
 
-`Plugin.Maui.Intercom` provides the ability to add [Intercom](https://www.intercom.com/) to your .NET MAUI application using [Native Library Interop](https://github.com/CommunityToolkit/Maui.NativeLibraryInterop) (NLI).
+`Plugin.Maui.Intercom` provides the ability to add [Intercom](https://www.intercom.com/) to your .NET MAUI application.
+
+- **Android**: a classic binding of the Intercom Android SDK plus a small native wrapper.
+- **iOS**: a binding of the official Intercom iOS `Intercom.xcframework`, generated with [swift-dotnet-bindings](https://github.com/justinwojo/swift-dotnet-bindings).
 
 ## Status
 
@@ -9,8 +12,6 @@ Both Android and iOS platforms are working.
 
 <img width="403" height="696" alt="Screenshot 2026-01-20 134953" src="https://github.com/user-attachments/assets/9696d97e-87a2-450a-bd76-ed261101f2f0" />
 <img width="395" height="505" alt="Screenshot 2026-01-20 124137" src="https://github.com/user-attachments/assets/c4f5a049-cdbe-46fc-bce4-bc1b4260c8d2" />
-
-
 
 ## Install Plugin
 
@@ -20,19 +21,25 @@ Available on [NuGet](http://www.nuget.org/packages/Plugin.Maui.Intercom).
 
 Install with the dotnet CLI: `dotnet add package Plugin.Maui.Intercom`, or through the NuGet Package Manager in Visual Studio.
 
-### Supported Platforms
+The platform binding packages (`Plugin.Maui.Intercom.iOS.Binding`, `Plugin.Maui.Intercom.Android.Binding`) are declared as platform-specific NuGet dependencies of the main package and restore automatically — never reference them directly.
 
-| Platform | Minimum Version Supported |
+### Supported Platforms and Versions
+
+| | Version |
 |----------|---------------------------|
-| iOS      | 15+                       |
-| Android  | 5.0 (API 21)              |
+| .NET | **.NET 10** (`net10.0-ios`, `net10.0-android`) |
+| .NET MAUI | 10.x |
+| iOS | 15.0+ |
+| Android | 5.0 (API 21)+ |
 
-### Native SDK Versions
+### Native SDK Versions (pinned)
 
 | Platform | Intercom SDK Version |
 |----------|---------------------|
 | Android  | 17.4.1              |
-| iOS      | Latest via SPM      |
+| iOS      | 18.7.2              |
+
+> **Breaking change (0.6.0):** the plugin now targets .NET 10 only. .NET 9 (`net9.0-*`) consumers must stay on 0.5.x. The iOS binding was replaced: the former `MauiIntercomMaciOS` wrapper types and the public `DictionaryExtensions.ToNSDictionary` iOS helper were removed. The `IIntercom` interface itself is source-compatible, with one addition: `LogEvent(string name)` (iOS only; throws `NotSupportedException` on Android).
 
 ## Setup
 
@@ -72,7 +79,7 @@ Add the following permissions to your `Platforms/Android/AndroidManifest.xml`:
 
 ### iOS Configuration
 
-No additional configuration is required for iOS.
+No additional configuration is required for iOS. The native `Intercom.framework` (including its resource bundles and `PrivacyInfo.xcprivacy`) is embedded and signed automatically by the binding package's MSBuild targets.
 
 ## API Usage
 
@@ -132,48 +139,29 @@ Intercom.Default.SetUserHash("hmac-sha256-hash");
 
 ### Presenting Intercom UI
 
-#### Show Messenger
-
 ```csharp
-// Show messenger without a pre-filled message
-Intercom.Default.PresentMessenger(null);
-
-// Show messenger with a pre-filled message
-Intercom.Default.PresentMessenger("I need help with...");
+Intercom.Default.PresentMessenger(null);            // Messenger
+Intercom.Default.PresentMessenger("I need help");   // Messenger with a pre-filled composer
+Intercom.Default.PresentHelpCenter();               // Help center space
+Intercom.Default.PresentSupportCenter();            // Home space
+Intercom.Default.PresentCarousel("carousel-id");    // A specific carousel
 ```
 
-#### Show Help Center
+All presentation happens on the main thread automatically.
+
+### Events
 
 ```csharp
-Intercom.Default.PresentHelpCenter();
+Intercom.Default.LogEvent("clicked_checkout");
 ```
 
-#### Show Support Center
-
-```csharp
-Intercom.Default.PresentSupportCenter();
-```
-
-#### Show a Carousel
-
-```csharp
-Intercom.Default.PresentCarousel("carousel-id");
-```
+> `LogEvent` is currently iOS-only; on Android it throws `NotSupportedException` because the Android native wrapper does not expose event logging yet.
 
 ### Customization
 
-#### Show/Hide Messenger Launcher
-
 ```csharp
-Intercom.Default.SetVisible(true);  // Show launcher
-Intercom.Default.SetVisible(false); // Hide launcher
-```
-
-#### Adjust Bottom Padding
-
-```csharp
-// Add 100 pixels of padding from the bottom
-Intercom.Default.SetBottomPadding(100);
+Intercom.Default.SetVisible(true);       // Show/hide the launcher
+Intercom.Default.SetBottomPadding(100);  // Padding from the bottom of the screen
 ```
 
 ### Logout
@@ -182,99 +170,94 @@ Intercom.Default.SetBottomPadding(100);
 Intercom.Default.Logout();
 ```
 
-## Building from Source
-
-### Prerequisites (Windows)
-
-**⚠️ IMPORTANT:** On Windows, you must enable long path support to build the iOS bindings.
-
-1. Open PowerShell as Administrator
-2. Run: `New-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem' -Name 'LongPathsEnabled' -Value 1 -PropertyType DWORD -Force`
-3. Restart your computer
-
-### Quick Build
-
-From the repository root:
-
-```powershell
-.\build.ps1
-```
-
-### Manual Build
-
-```powershell
-cd src
-dotnet build Plugin.Maui.Intercom.sln
-```
-
-For detailed build instructions, troubleshooting, and development tips, see [BUILD.md](src/BUILD.md).
-
 ### Dependency Injection
 
-You can also use dependency injection:
+`UseIntercom()` registers `IIntercom` as a singleton, so you can constructor-inject it:
 
 ```csharp
-// In MauiProgram.cs
-builder.Services.AddSingleton<IIntercom>(Intercom.Default);
-
-// In your ViewModel or Page
 public class MyViewModel
 {
     private readonly IIntercom _intercom;
 
-    public MyViewModel(IIntercom intercom)
-    {
-        _intercom = intercom;
-    }
+    public MyViewModel(IIntercom intercom) => _intercom = intercom;
 
-    public void ShowMessenger()
-    {
-        _intercom.PresentMessenger(null);
-    }
+    public void ShowMessenger() => _intercom.PresentMessenger(null);
 }
 ```
 
-## Complete Example
+## Architecture
 
-```csharp
-public partial class MainPage : ContentPage
-{
-    public MainPage()
-    {
-        InitializeComponent();
+Three NuGet packages, all versioned identically:
 
-        // Initialize Intercom
-        Intercom.Default.Initialize("your-api-key", "your-app-id");
-    }
+| Package | Role |
+|---------|------|
+| `Plugin.Maui.Intercom` | User-facing MAUI abstraction (`IIntercom`, DI setup) |
+| `Plugin.Maui.Intercom.iOS.Binding` | iOS native binding, generated by swift-dotnet-bindings |
+| `Plugin.Maui.Intercom.Android.Binding` | Android native binding (Gradle interop) |
 
-    private void OnLoginClicked(object sender, EventArgs e)
-    {
-        // Register user after login
-        Intercom.Default.RegisterWithUserId(
-            "user-123",
-            onSuccess: () =>
-            {
-                // Optionally set user hash for identity verification
-                Intercom.Default.SetUserHash("server-generated-hash");
-            },
-            onFailure: (error) =>
-            {
-                DisplayAlert("Error", $"Failed to register: {error}", "OK");
-            }
-        );
-    }
+The main package declares the binding packages as platform-conditional dependencies (`net10.0-ios` → iOS binding, `net10.0-android` → Android binding), so consumers only ever add `Plugin.Maui.Intercom`.
 
-    private void OnHelpClicked(object sender, EventArgs e)
-    {
-        Intercom.Default.PresentMessenger(null);
-    }
+### How the iOS binding works
 
-    private void OnLogoutClicked(object sender, EventArgs e)
-    {
-        Intercom.Default.Logout();
-    }
-}
+- The exact Intercom `Intercom.xcframework` (18.7.2) is **checked into the repository** at `src/macios/Intercom.iOS.Binding/` — ordinary builds never download anything. The SHA-256 of the official release archive is recorded in `eng/intercom-ios.sha256`.
+- `src/macios/Intercom.iOS.Binding` uses the `SwiftBindings.Sdk` MSBuild project SDK (version pinned in `global.json` under `msbuild-sdks`). At build time on macOS it generates the C# binding and a native wrapper from the xcframework, then lays out the NuGet with:
+  - managed assemblies in `lib/net10.0-iosX.Y/` (including the Objective-C companion assembly for Intercom's ObjC surface),
+  - native frameworks under `runtimes/<rid>/native/` (separate device and simulator trees),
+  - `buildTransitive/` targets that add the `NativeReference`s in the consuming app so the framework is embedded, linked and signed automatically.
+- Generated C# sources are **build outputs, not committed**: the generator ships as a pinned NuGet SDK, so builds are deterministic from pinned inputs (SDK version + vendored xcframework) without every contributor installing anything. CI uploads the generated sources as an artifact for review.
+
+## Building from Source
+
+Requirements:
+
+| Tool | Version |
+|------|---------|
+| .NET SDK | 10.0.1xx (`global.json`) |
+| .NET MAUI workloads | `maui-ios`, `maui-android` |
+| Xcode (iOS binding + apps) | 26+ (CI pins 26.3) |
+| macOS | Required for anything iOS-native |
+| JDK (Android binding) | 17 |
+
+```bash
+# Android binding (any OS with JDK 17)
+dotnet pack src/android/Intercom.Android.Binding/Intercom.Android.Binding.csproj -c Release -o artifacts/packages
+
+# iOS binding (macOS only — generates the binding and packs it)
+eng/generate-ios-binding.sh --output artifacts/packages
+
+# Main package, resolving the freshly packed bindings from the local folder
+dotnet restore src/Plugin.Maui.Intercom/Plugin.Maui.Intercom.csproj --configfile <nuget.config pointing at artifacts/packages>
+dotnet pack src/Plugin.Maui.Intercom/Plugin.Maui.Intercom.csproj -c Release --output artifacts/packages
 ```
+
+> The iOS binding project is intentionally not in the solution file; it can only build on macOS.
+
+### Clean-room package test
+
+To prove the packages work from outside the source tree (this is what CI gates releases on):
+
+```bash
+eng/test-consumer.sh --version <version> --feed artifacts/packages --clear-cache
+```
+
+This creates a minimal MAUI app in `/tmp/icom-test` that references only `Plugin.Maui.Intercom` by package ID from a temporary NuGet feed, verifies the iOS binding resolves transitively, builds for the iOS simulator and (unsigned) for `ios-arm64`, and inspects the resulting `.app` for the embedded framework, resource bundles and privacy manifest.
+
+```bash
+eng/validate-packages.sh --version <version> --feed artifacts/packages
+```
+
+opens each `.nupkg` and asserts IDs, versions, dependency groups, native assets and the absence of machine-specific paths or simulator slices in device trees.
+
+### Upgrading the Intercom iOS SDK
+
+```bash
+eng/update-intercom.sh <new-version> [<expected-sha256>]
+eng/generate-ios-binding.sh
+```
+
+The update script downloads the exact tagged release from `intercom/intercom-ios`, verifies/records its SHA-256, replaces the vendored xcframework and updates the `IntercomIosSdkVersion` pin in `Directory.Build.props`. After regenerating, fix any compile errors in `src/Plugin.Maui.Intercom/Intercom.macios.cs` caused by upstream API changes.
+
+To update the swift-dotnet-bindings generator, change the `SwiftBindings.Sdk` version in `global.json` (`msbuild-sdks`) — releases are tagged `sdk-vX.Y.Z` upstream.
 
 ## Troubleshooting
 
@@ -284,11 +267,31 @@ If you encounter runtime crashes related to `NoSuchMethodError` in Compose class
 
 ### iOS: Build on Windows
 
-iOS builds require macOS. The sample project is configured to skip iOS targets on Windows to avoid build errors.
+iOS builds require macOS. The sample project skips iOS targets on Windows; the iOS binding project only builds on macOS with Xcode 26+.
+
+### iOS: Missing Swift symbols / linker errors
+
+The binding package ships the required wrapper frameworks and the `buildTransitive` targets add the `NativeReference`s automatically. If the linker reports missing `Intercom` or Swift symbols:
+- confirm `Plugin.Maui.Intercom.iOS.Binding` appears in your app's resolved packages (`obj/project.assets.json`),
+- clear the NuGet cache (`dotnet nuget locals all --clear`) and restore again,
+- make sure you are on the .NET 10 iOS workload matching your Xcode version.
+
+### iOS: Framework embedding / signing
+
+`Intercom.framework` is dynamic: it must end up in `YourApp.app/Frameworks` and be code-signed with the app. Both are handled by the standard `NativeReference` pipeline; if a device build fails signing on the nested framework, verify your signing identity also applies to embedded frameworks (automatic signing does).
+
+### iOS: Trimming / AOT
+
+Release device builds use the default MAUI trimmer settings. The binding assemblies carry the metadata the trimmer needs; do not disable trimming globally. If you enable aggressive trimming (`TrimMode=full`) and hit a missing-selector issue at runtime, file an issue with the trimmed member name.
+
+### iOS: Simulator
+
+The generated binding may route a small number of members through Swift calling conventions that are limited under the Mono JIT on the iOS **simulator** (device builds are unaffected). The plugin's API surface uses Intercom's Objective-C entry points and is not affected.
 
 ## Acknowledgements
 
 This project could not have come to be without these projects and people, thank you!
 
-- [.NET MAUI Community Toolkit](https://github.com/CommunityToolkit/Maui) - For the Native Library Interop pattern
+- [swift-dotnet-bindings](https://github.com/justinwojo/swift-dotnet-bindings) - The Swift/ObjC → .NET binding generator used for the iOS binding
+- [.NET MAUI Community Toolkit](https://github.com/CommunityToolkit/Maui) - For the original Native Library Interop pattern
 - [Intercom](https://www.intercom.com/) - For their excellent customer messaging platform

@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
 using CommunityToolkit.Mvvm.DependencyInjection;
@@ -10,6 +9,7 @@ namespace MauiSample;
 public partial class MainPage : ContentPage
 {
     private readonly IConfiguration _configuration;
+    private bool _initialized;
 
     public MainPage(IConfiguration configuration)
     {
@@ -17,100 +17,182 @@ public partial class MainPage : ContentPage
         _configuration = configuration;
     }
 
+    private static IIntercom Intercom => Ioc.Default.GetRequiredService<IIntercom>();
+
+    private void SetStatus(string message)
+    {
+        MainThread.BeginInvokeOnMainThread(() => StatusLabel.Text = message);
+    }
+
     private static string GetHmac(string key, string message)
     {
-        // change according to your needs, an UTF8Encoding
-        // could be more suitable in certain situations
         var encoding = new UTF8Encoding();
-
-        var messageBytes = encoding.GetBytes(message);
-        var keyBytes = encoding.GetBytes(key);
-
-        byte[] hashBytes;
-
-        using (var hash = new HMACSHA256(keyBytes))
-        {
-            hashBytes = hash.ComputeHash(messageBytes);
-        }
-
-        return Convert.ToHexStringLower(hashBytes);
+        using var hash = new HMACSHA256(encoding.GetBytes(key));
+        return Convert.ToHexStringLower(hash.ComputeHash(encoding.GetBytes(message)));
     }
 
-    protected override void OnAppearing()
+    private (string apiKey, string appId, string secret) GetCredentials()
     {
-        base.OnAppearing();
-
-        var intercom = Ioc.Default.GetRequiredService<IIntercom>();
-        
 #if ANDROID
-        var intercomApiKey = _configuration.GetValue("Intercom:DroidApiKey", string.Empty);
-        var intercomSecret = _configuration.GetValue("Intercom:DroidSecret", string.Empty);
+        var apiKey = _configuration.GetValue("Intercom:DroidApiKey", string.Empty);
+        var secret = _configuration.GetValue("Intercom:DroidSecret", string.Empty);
 #elif IOS
-        var intercomApiKey = _configuration.GetValue("Intercom:AppleApiKey", string.Empty);
-        var intercomSecret = _configuration.GetValue("Intercom:AppleSecret", string.Empty);
+        var apiKey = _configuration.GetValue("Intercom:AppleApiKey", string.Empty);
+        var secret = _configuration.GetValue("Intercom:AppleSecret", string.Empty);
 #else
-        var intercomApiKey = string.Empty;
-        var intercomSecret = string.Empty;
+        var apiKey = string.Empty;
+        var secret = string.Empty;
 #endif
-        var intercomAppId = _configuration.GetValue("Intercom:AppId", string.Empty);
-
-        intercom.Initialize(intercomApiKey, intercomAppId);
-
-        //// If user verification is not on, you don't need to set the user hash
-        //intercom.Logout();
-        //intercom.RegisterWithEmail("test@test.com");
-
-        //// If user verification is on, you need to set the user hash
-        //intercom.Logout();
-        intercom.SetUserHash(GetHmac(intercomSecret, "test@test.com"));
-        intercom.RegisterWithEmail("test@test.com", () =>
-        {
-            Debug.WriteLine("Intercom Registration SUCCESSFUL");
-        }, msg =>
-        {
-            Debug.WriteLine("Intercom Registration FAILED: '{ErrorMessage}'", msg ?? string.Empty);
-        });
-
-        // If there's no user info at all, you can just call register
-        //intercom.Logout();
-        //intercom.RegisterWithEmail(() =>
-        //{
-        //    Debug.WriteLine("Intercom Registration SUCCESSFUL");
-        //}, (string? msg) =>
-        //{
-        //    Debug.WriteLine("Intercom Registration FAILED: '{ErrorMessage}'", msg ?? string.Empty);
-        //});
-
-        intercom.SetVisible(true);
+        var appId = _configuration.GetValue("Intercom:AppId", string.Empty);
+        return (apiKey ?? string.Empty, appId ?? string.Empty, secret ?? string.Empty);
     }
 
-    private async void OnDocsButtonClicked(object sender, EventArgs e)
+    private bool EnsureInitialized()
+    {
+        if (_initialized)
+        {
+            return true;
+        }
+
+        SetStatus("Not initialized — tap Initialize first");
+        return false;
+    }
+
+    private void OnInitializeClicked(object sender, EventArgs e)
     {
         try
         {
-            var uri = new Uri(
-                "https://learn.microsoft.com/dotnet/communitytoolkit/maui/native-library-interop/get-started");
+            var (apiKey, appId, _) = GetCredentials();
+            if (string.IsNullOrEmpty(apiKey) || string.IsNullOrEmpty(appId))
+            {
+                SetStatus("Missing credentials — set Intercom:AppleApiKey/DroidApiKey and Intercom:AppId in appsettings.Development.json");
+                return;
+            }
 
-            await Browser.Default.OpenAsync(uri, BrowserLaunchMode.SystemPreferred);
+            Intercom.Initialize(apiKey, appId);
+            _initialized = true;
+            SetStatus("Initialized");
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Browser failed to launch. " + ex);
+            SetStatus($"Initialize failed: {ex.Message}");
         }
     }
 
-    private async void OnRepoButtonClicked(object sender, EventArgs e)
+    private void OnRegisterUnidentifiedClicked(object sender, EventArgs e)
     {
+        if (!EnsureInitialized())
+        {
+            return;
+        }
+
         try
         {
-            var uri = new Uri(
-                "https://github.com/kfrancis/Plugin.Maui.Intercom");
-
-            await Browser.Default.OpenAsync(uri, BrowserLaunchMode.SystemPreferred);
+            Intercom.Register(
+                () => SetStatus("Unidentified registration OK"),
+                error => SetStatus($"Unidentified registration failed: {error}"));
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Browser failed to launch. " + ex);
+            SetStatus($"Register failed: {ex.Message}");
+        }
+    }
+
+    private void OnRegisterIdentifiedClicked(object sender, EventArgs e)
+    {
+        if (!EnsureInitialized())
+        {
+            return;
+        }
+
+        try
+        {
+            const string email = "test@test.com";
+            var (_, _, secret) = GetCredentials();
+            if (!string.IsNullOrEmpty(secret))
+            {
+                // Only needed when identity verification is enabled for the workspace.
+                Intercom.SetUserHash(GetHmac(secret, email));
+            }
+
+            Intercom.RegisterWithEmail(email,
+                () => SetStatus($"Registered {email}"),
+                error => SetStatus($"Registration failed: {error}"));
+        }
+        catch (Exception ex)
+        {
+            SetStatus($"Register failed: {ex.Message}");
+        }
+    }
+
+    private void OnPresentMessengerClicked(object sender, EventArgs e)
+    {
+        if (!EnsureInitialized())
+        {
+            return;
+        }
+
+        try
+        {
+            Intercom.PresentMessenger(null);
+            SetStatus("Messenger presented");
+        }
+        catch (Exception ex)
+        {
+            SetStatus($"Present failed: {ex.Message}");
+        }
+    }
+
+    private void OnPresentHelpCenterClicked(object sender, EventArgs e)
+    {
+        if (!EnsureInitialized())
+        {
+            return;
+        }
+
+        try
+        {
+            Intercom.PresentHelpCenter();
+            SetStatus("Help center presented");
+        }
+        catch (Exception ex)
+        {
+            SetStatus($"Present failed: {ex.Message}");
+        }
+    }
+
+    private void OnLogEventClicked(object sender, EventArgs e)
+    {
+        if (!EnsureInitialized())
+        {
+            return;
+        }
+
+        try
+        {
+            Intercom.LogEvent("sample_button_tapped");
+            SetStatus("Event logged");
+        }
+        catch (NotSupportedException)
+        {
+            SetStatus("LogEvent is not supported on this platform");
+        }
+        catch (Exception ex)
+        {
+            SetStatus($"LogEvent failed: {ex.Message}");
+        }
+    }
+
+    private void OnLogoutClicked(object sender, EventArgs e)
+    {
+        try
+        {
+            Intercom.Logout();
+            SetStatus("Logged out");
+        }
+        catch (Exception ex)
+        {
+            SetStatus($"Logout failed: {ex.Message}");
         }
     }
 }

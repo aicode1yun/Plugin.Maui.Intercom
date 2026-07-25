@@ -1,0 +1,162 @@
+#!/usr/bin/env bash
+# Programmatic validation of packed .nupkg contents.
+#
+# Opens each package as a ZIP and asserts the expected layout, dependency
+# groups, native assets, and the absence of build-machine paths or simulator
+# slices where they don't belong. Runs on macOS and Linux (python3 + bash).
+#
+# Usage: eng/validate-packages.sh --version <pkg-version> --feed <dir-with-nupkgs>
+set -euo pipefail
+
+VERSION=""
+FEED=""
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --version) VERSION="$2"; shift 2 ;;
+    --feed)    FEED="$(cd "$2" && pwd)"; shift 2 ;;
+    *) echo "Unknown argument: $1" >&2; exit 2 ;;
+  esac
+done
+[[ -n "$VERSION" && -n "$FEED" ]] || { echo "Usage: eng/validate-packages.sh --version <v> --feed <dir>" >&2; exit 2; }
+
+python3 - "$FEED" "$VERSION" <<'PYEOF'
+import re
+import sys
+import zipfile
+from pathlib import Path
+from xml.etree import ElementTree
+
+feed = Path(sys.argv[1])
+version = sys.argv[2]
+failures = []
+
+
+def check(cond, message):
+    status = "ok " if cond else "FAIL"
+    print(f"  [{status}] {message}")
+    if not cond:
+        failures.append(message)
+
+
+def load(pkg_id):
+    path = feed / f"{pkg_id}.{version}.nupkg"
+    if not path.exists():
+        failures.append(f"{path.name} missing from feed")
+        print(f"  [FAIL] {path.name} missing from feed")
+        return None, []
+    z = zipfile.ZipFile(path)
+    return z, z.namelist()
+
+
+def nuspec(z, pkg_id):
+    ns = {"n": ""}
+    data = z.read(f"{pkg_id}.nuspec").decode("utf-8-sig")
+    # Strip default namespace for simpler XPath.
+    data = re.sub(r'xmlns="[^"]+"', "", data, count=1)
+    return ElementTree.fromstring(data), data
+
+
+def dependency_groups(root):
+    groups = {}
+    for g in root.findall(".//dependencies/group"):
+        tfm = g.get("targetFramework") or ""
+        groups[tfm] = {d.get("id"): d.get("version") for d in g.findall("dependency")}
+    return groups
+
+
+BAD_PATH_RX = re.compile(r"(/Users/[a-zA-Z0-9_]+/|C:\\Users\\|/home/runner|/private/tmp|obj/(Debug|Release)|(^|/)bin/(Debug|Release))", re.IGNORECASE)
+
+# ── iOS binding package ─────────────────────────────────────────────────────
+print(f"\n== Plugin.Maui.Intercom.iOS.Binding {version} ==")
+z, names = load("Plugin.Maui.Intercom.iOS.Binding")
+if z:
+    root, raw = nuspec(z, "Plugin.Maui.Intercom.iOS.Binding")
+    check(root.find(".//id").text == "Plugin.Maui.Intercom.iOS.Binding", "package id")
+    check(root.find(".//version").text == version, f"package version == {version}")
+
+    libs = [n for n in names if n.startswith("lib/net10.0-ios") and n.endswith(".dll")]
+    check(len(libs) >= 1, f"managed dll(s) under lib/net10.0-ios*: {libs}")
+
+    natives = [n for n in names if n.startswith("runtimes/")]
+    check(any("Intercom.framework/Intercom" in n and "ios-arm64/" in n.split("runtimes/")[1]
+              for n in natives),
+          "device Intercom.framework binary under runtimes/ios-arm64/native/")
+    check(any("iossimulator" in n and "Intercom.framework/Intercom" in n for n in natives),
+          "simulator Intercom.framework binary under runtimes/iossimulator-*/native/")
+    check(any(n.endswith("PrivacyInfo.xcprivacy") for n in natives),
+          "PrivacyInfo.xcprivacy shipped with the native framework")
+    for bundle in ("Intercom.bundle", "IntercomTranslations.bundle"):
+        check(any(bundle in n for n in natives), f"{bundle} resources present")
+
+    check(any(n.startswith("buildTransitive/") and n.endswith(".targets") for n in names),
+          "buildTransitive consumer .targets present")
+
+    device_natives = [n for n in natives if "/ios-arm64/" in n]
+    check(not any("simulator" in n.lower() for n in device_natives),
+          "no simulator slices leaked into the ios-arm64 runtimes tree")
+
+    # Framework must appear exactly once per RID tree.
+    device_fw_roots = {n.split("native/")[1].split("/")[0]
+                       for n in device_natives if "native/" in n and "Intercom.framework" in n}
+    check(len([r for r in device_fw_roots if r == "Intercom.xcframework"]) <= 1,
+          f"single Intercom.xcframework per RID (found roots: {sorted(device_fw_roots)})")
+
+    # Absolute/build-machine paths in MSBuild assets.
+    for n in names:
+        if n.endswith((".targets", ".props")):
+            content = z.read(n).decode("utf-8", errors="replace")
+            check(not BAD_PATH_RX.search(content), f"no machine-specific paths in {n}")
+
+    check(not any(BAD_PATH_RX.search(n) for n in names), "no machine-specific package entry paths")
+
+    groups = dependency_groups(root)
+    print(f"  dependency groups: { {k: sorted(v) for k, v in groups.items()} }")
+
+# ── Android binding package ────────────────────────────────────────────────
+print(f"\n== Plugin.Maui.Intercom.Android.Binding {version} ==")
+z, names = load("Plugin.Maui.Intercom.Android.Binding")
+if z:
+    root, _ = nuspec(z, "Plugin.Maui.Intercom.Android.Binding")
+    check(root.find(".//version").text == version, f"package version == {version}")
+    check(any(n.startswith("lib/net10.0-android") and n.endswith(".dll") for n in names),
+          "managed dll under lib/net10.0-android*")
+    check(any(n.endswith(".aar") for n in names), "bundled .aar present")
+
+# ── Main package ────────────────────────────────────────────────────────────
+print(f"\n== Plugin.Maui.Intercom {version} ==")
+z, names = load("Plugin.Maui.Intercom")
+if z:
+    root, _ = nuspec(z, "Plugin.Maui.Intercom")
+    check(root.find(".//version").text == version, f"package version == {version}")
+    check(any(n.startswith("lib/net10.0-ios") and n.endswith("Plugin.Maui.Intercom.dll") for n in names),
+          "iOS lib present")
+    check(any(n.startswith("lib/net10.0-android") and n.endswith("Plugin.Maui.Intercom.dll") for n in names),
+          "Android lib present")
+
+    groups = dependency_groups(root)
+    ios_groups = {tfm: deps for tfm, deps in groups.items() if "ios" in tfm.lower()}
+    android_groups = {tfm: deps for tfm, deps in groups.items() if "android" in tfm.lower()}
+    check(bool(ios_groups), f"iOS dependency group exists ({list(groups)})")
+    check(bool(android_groups), f"Android dependency group exists ({list(groups)})")
+    for tfm, deps in ios_groups.items():
+        check(deps.get("Plugin.Maui.Intercom.iOS.Binding") == version,
+              f"{tfm} depends on iOS binding {version} (got {deps.get('Plugin.Maui.Intercom.iOS.Binding')})")
+        check("Plugin.Maui.Intercom.Android.Binding" not in deps,
+              f"{tfm} does not leak the Android binding")
+    for tfm, deps in android_groups.items():
+        check(deps.get("Plugin.Maui.Intercom.Android.Binding") == version,
+              f"{tfm} depends on Android binding {version}")
+        check("Plugin.Maui.Intercom.iOS.Binding" not in deps,
+              f"{tfm} does not leak the iOS binding")
+
+    snupkg = feed / f"Plugin.Maui.Intercom.{version}.snupkg"
+    check(snupkg.exists(), "symbols package (.snupkg) present for main package")
+
+print()
+if failures:
+    print(f"Package validation FAILED ({len(failures)} problem(s)):")
+    for f in failures:
+        print(f"  - {f}")
+    sys.exit(1)
+print("Package validation PASSED.")
+PYEOF

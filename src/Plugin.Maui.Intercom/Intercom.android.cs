@@ -100,6 +100,12 @@ internal class IntercomImplementation : IIntercom
         IntercomSdk.Logout();
     }
 
+    /// <inheritdoc />
+    public void LogEvent(string name)
+    {
+        throw new NotSupportedException("Event logging is not exposed by the Android native wrapper yet.");
+    }
+
     private class IntercomCallback : Object, IIntercomCallback
     {
         private readonly Action<string?>? _onFailure;
