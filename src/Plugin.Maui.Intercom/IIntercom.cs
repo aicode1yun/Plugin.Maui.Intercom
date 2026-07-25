@@ -89,4 +89,13 @@ public interface IIntercom
     /// </summary>
     /// <param name="bottomPadding"></param>
     void SetBottomPadding(int bottomPadding);
+
+    /// <summary>
+    ///     Log an event with the given name.
+    /// </summary>
+    /// <param name="name">The name of the event.</param>
+    /// <exception cref="NotSupportedException">
+    ///     Thrown on Android; the Android native wrapper does not currently expose event logging.
+    /// </exception>
+    void LogEvent(string name);
 }

@@ -1,56 +1,98 @@
 # file: .github/workflows/publish.yml
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+#
+# Pipeline overview
+#   version        → single MinVer computation shared by every job
+#   android        → pack Plugin.Maui.Intercom.Android.Binding (Windows, Gradle)
+#   ios-binding    → pack Plugin.Maui.Intercom.iOS.Binding on macOS via swift-dotnet-bindings
+#   main-package   → pack Plugin.Maui.Intercom against the locally produced binding packages
+#   consumer-test  → clean-room MAUI app consuming ONLY the packed NuGets (simulator + device)
+#   deploy         → push the exact validated artifacts to NuGet.org on release
+#
+# Pinned toolchain: .NET 10 (global.json), Xcode 26.6, SwiftBindings.Sdk (global.json
+# msbuild-sdks), Intercom iOS 18.7.2 (vendored xcframework), Intercom Android 17.4.1 (vendored AARs).
 
 name: publish
 on:
-  workflow_dispatch: # Allow running the workflow manually from the GitHub UI
+  workflow_dispatch:
 
   push:
     branches:
       - main
     paths:
-      - 'src/Plugin.Maui.Intercom/**'
-      - 'src/android/**'
-      - 'src/macios/**'
+      - 'src/**'
+      - 'eng/**'
+      - 'global.json'
+      - 'Directory.Build.props'
       - '.github/workflows/publish.yml'
 
   pull_request:
     branches:
       - '*'
     paths:
-      - 'src/Plugin.Maui.Intercom/**'
-      - 'src/android/**'
-      - 'src/macios/**'
+      - 'src/**'
+      - 'eng/**'
+      - 'global.json'
+      - 'Directory.Build.props'
       - '.github/workflows/publish.yml'
 
   release:
     types: [ published ]
 
-env:
-  DOTNET_MULTILEVEL_LOOKUP: 0
-  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
-  DOTNET_SYSTEM_CONSOLE_ALLOW_ANSI_COLOR_REDIRECTION: 1
-  DOTNET_NOLOGO: true
-  NuGetDirectory: ${{ github.workspace}}/nuget
-  NuGetSource: https://api.nuget.org/v3/index.json
+concurrency:
+  group: publish-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
-defaults:
-  run:
-    shell: pwsh
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+  XCODE_PATH: /Applications/Xcode_26.6.app
 
 permissions: {}
 
 jobs:
-  build:
-    runs-on: windows-latest
+  # ──────────────────────────────────────────────────────────────────────────
+  version:
+    runs-on: ubuntu-latest
     permissions:
-      attestations: write
       contents: read
-      id-token: write
+    outputs:
+      version: ${{ steps.minver.outputs.version }}
     steps:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
+          show-progress: false
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: 'global.json'
+
+      - name: Determine version (MinVer)
+        id: minver
+        shell: pwsh
+        run: |
+          dotnet tool install --global minver-cli
+          git fetch --tags
+          $version = minver --tag-prefix v --auto-increment minor
+          if (-not $version) { throw "MinVer produced no version" }
+          Write-Host "Version: $version"
+          echo "version=$version" >> $env:GITHUB_OUTPUT
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # Android is temporarily disabled while the iOS binding replacement lands;
+  # set ANDROID_ENABLED to true (and restore the main-package/deploy wiring)
+  # to re-enable.
+  android:
+    if: false
+    runs-on: windows-latest
+    needs: [ version ]
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+        with:
           show-progress: false
 
       - name: Set up JDK 17
@@ -59,10 +101,112 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Setup MSBuild path
-        uses: microsoft/setup-msbuild@v2
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
         with:
-          vs-version: 'latest'
+          global-json-file: 'global.json'
+
+      - name: Install Android workload
+        run: dotnet workload install maui-android
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-android-${{ runner.os }}-${{ hashFiles('global.json', 'src/android/**/*.csproj') }}
+
+      - name: Pack Android binding
+        shell: pwsh
+        run: dotnet pack src/android/Intercom.Android.Binding/Intercom.Android.Binding.csproj -c Release --output ${{ github.workspace }}/nuget -p:Version=${{ needs.version.outputs.version }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nuget-android
+          if-no-files-found: error
+          retention-days: 7
+          path: |
+            nuget/*.nupkg
+            nuget/*.snupkg
+
+  # ──────────────────────────────────────────────────────────────────────────
+  ios-binding:
+    runs-on: macos-26
+    needs: [ version ]
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          show-progress: false
+
+      - name: Select Xcode 26.6
+        run: sudo xcode-select -s "$XCODE_PATH"
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: 'global.json'
+
+      - name: Install iOS workload
+        run: dotnet workload install ios maui-ios
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-ios-${{ runner.os }}-xcode26.6-${{ hashFiles('global.json', 'Directory.Build.props', 'src/macios/**/*.csproj') }}
+
+      - name: Generate, build and pack iOS binding
+        run: |
+          chmod +x eng/generate-ios-binding.sh
+          eng/generate-ios-binding.sh --version ${{ needs.version.outputs.version }} --output "$GITHUB_WORKSPACE/nuget"
+
+      - name: Show package contents
+        run: unzip -l nuget/Plugin.Maui.Intercom.iOS.Binding.${{ needs.version.outputs.version }}.nupkg
+
+      # The generated C# sources are build outputs (not committed); keep them
+      # as a diagnostic artifact so API drift after an Intercom upgrade is easy to review.
+      - name: Collect generated binding sources
+        if: always()
+        run: |
+          mkdir -p gen-src
+          rsync -am --include='*/' \
+            --include='*.cs' --include='*.json' --include='*.log' \
+            --include='*.props' --include='*.targets' --include='*.txt' \
+            --exclude='*' \
+            src/macios/Intercom.iOS.Binding/obj/ gen-src/ 2>/dev/null || true
+          find gen-src -type f | head -100 || true
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ios-generated-sources
+          path: gen-src
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nuget-ios
+          if-no-files-found: error
+          retention-days: 7
+          path: |
+            nuget/*.nupkg
+            nuget/*.snupkg
+
+  # ──────────────────────────────────────────────────────────────────────────
+  main-package:
+    runs-on: macos-26
+    needs: [ version, ios-binding ]
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          show-progress: false
+
+      - name: Select Xcode 26.6
+        run: sudo xcode-select -s "$XCODE_PATH"
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
@@ -70,64 +214,123 @@ jobs:
           global-json-file: 'global.json'
 
       - name: Install MAUI workloads
-        run: dotnet workload install maui-android maui-ios
+        run: dotnet workload install maui-ios
 
-      - name: Determine Version
-        id: minver
+      - uses: actions/download-artifact@v5
+        with:
+          pattern: nuget-*
+          merge-multiple: true
+          path: nuget
+
+      - name: Create local-feed NuGet.config
         run: |
-            dotnet tool install --global minver-cli
-            git fetch --tags
-            git tag
-            $version = minver --tag-prefix v --auto-increment minor --verbosity trace
-            echo "PACKAGE_VERSION=$version" >> $env:GITHUB_ENV
-            echo "version=$version" >> $env:GITHUB_OUTPUT
+          cat > nuget.local.config <<EOF
+          <?xml version="1.0" encoding="utf-8"?>
+          <configuration>
+            <packageSources>
+              <clear />
+              <add key="local" value="$GITHUB_WORKSPACE/nuget" />
+              <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
+            </packageSources>
+          </configuration>
+          EOF
 
-      - name: Build and Pack Android Binding
-        run: dotnet pack src/android/Intercom.Android.Binding/Intercom.Android.Binding.csproj --configuration Release --output ${{ env.NuGetDirectory }} -p:Version=${{ env.PACKAGE_VERSION }}
-
-      - name: Build and Pack iOS Binding
-        run: dotnet pack src/macios/Intercom.MaciOS.Binding/Intercom.MaciOS.Binding.csproj --configuration Release --output ${{ env.NuGetDirectory }} -p:Version=${{ env.PACKAGE_VERSION }}
-
-      - name: List Packed Binding Packages
-        run: Get-ChildItem ${{ env.NuGetDirectory }} -Filter *.nupkg
-
-      - name: Add Local NuGet Source
-        run: dotnet nuget add source ${{ env.NuGetDirectory }} --name LocalBindings
-
-      - name: Build Main Package
-        run: dotnet build src/Plugin.Maui.Intercom/Plugin.Maui.Intercom.csproj --configuration Release -p:Version=${{ env.PACKAGE_VERSION }}
-
-      - name: Pack Main Package
-        run: dotnet pack src/Plugin.Maui.Intercom/Plugin.Maui.Intercom.csproj --configuration Release --output ${{ env.NuGetDirectory }} --no-build -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg -p:Version=${{ env.PACKAGE_VERSION }}
-
-      - name: Prepare Artifacts
+      # Android is temporarily disabled: build/pack only the iOS target so the
+      # Android binding package is not required in the local feed.
+      - name: Build and pack main package (iOS only)
         run: |
-          mkdir -p ${{ env.NuGetDirectory }}/artifacts
-          cp ${{ env.NuGetDirectory }}/*.nupkg ${{ env.NuGetDirectory }}/artifacts
-          cp ${{ env.NuGetDirectory }}/*.snupkg ${{ env.NuGetDirectory }}/artifacts
+          dotnet restore src/Plugin.Maui.Intercom/Plugin.Maui.Intercom.csproj --configfile nuget.local.config -p:TargetFrameworks=net10.0-ios -p:Version=${{ needs.version.outputs.version }}
+          dotnet build src/Plugin.Maui.Intercom/Plugin.Maui.Intercom.csproj -c Release --no-restore -p:TargetFrameworks=net10.0-ios -p:Version=${{ needs.version.outputs.version }}
+          dotnet pack src/Plugin.Maui.Intercom/Plugin.Maui.Intercom.csproj -c Release --no-build --output nuget -p:TargetFrameworks=net10.0-ios -p:Version=${{ needs.version.outputs.version }}
+
+      - name: Inspect generated nuspec
+        run: |
+          unzip -p nuget/Plugin.Maui.Intercom.${{ needs.version.outputs.version }}.nupkg Plugin.Maui.Intercom.nuspec
+
+      - name: Validate package contents
+        run: |
+          chmod +x eng/validate-packages.sh
+          eng/validate-packages.sh --version ${{ needs.version.outputs.version }} --feed nuget --ios-only
 
       - uses: actions/upload-artifact@v4
         with:
-          name: nuget
+          name: nuget-main
           if-no-files-found: error
           retention-days: 7
           path: |
-            ${{ env.NuGetDirectory }}/artifacts/*.nupkg
-            ${{ env.NuGetDirectory }}/artifacts/*.snupkg
+            nuget/Plugin.Maui.Intercom.${{ needs.version.outputs.version }}.nupkg
+            nuget/Plugin.Maui.Intercom.${{ needs.version.outputs.version }}.snupkg
 
+  # ──────────────────────────────────────────────────────────────────────────
+  consumer-test:
+    runs-on: macos-26
+    needs: [ version, main-package ]
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          show-progress: false
+
+      - name: Select Xcode 26.6
+        run: sudo xcode-select -s "$XCODE_PATH"
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: 'global.json'
+
+      - name: Install iOS workload
+        run: dotnet workload install maui-ios
+
+      - uses: actions/download-artifact@v5
+        with:
+          pattern: nuget-*
+          merge-multiple: true
+          path: nuget
+
+      - name: Clean-room consumer test (simulator + ios-arm64)
+        run: |
+          chmod +x eng/test-consumer.sh
+          eng/test-consumer.sh --version ${{ needs.version.outputs.version }} --feed nuget --clear-cache
+
+      - name: Diagnostics on failure
+        if: failure()
+        run: |
+          dotnet --info || true
+          dotnet workload list || true
+          xcodebuild -version || true
+          swift --version || true
+          echo "── resolved assets ──"
+          cat /tmp/icom-test/App/obj/project.assets.json 2>/dev/null | head -200 || true
+          echo "── package entries ──"
+          for p in nuget/*.nupkg; do echo "== $p"; unzip -l "$p" | head -100; done
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: consumer-test-binlog
+          path: /tmp/icom-test/*.binlog
+          retention-days: 7
+          if-no-files-found: ignore
+
+  # ──────────────────────────────────────────────────────────────────────────
   deploy:
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
-    needs: [ build ]
+    needs: [ version, main-package, consumer-test ]
     permissions:
       id-token: write
+    env:
+      NuGetSource: https://api.nuget.org/v3/index.json
     steps:
       - uses: actions/download-artifact@v5
         with:
-          name: nuget
-          path: ${{ env.NuGetDirectory }}
+          pattern: nuget-*
+          merge-multiple: true
+          path: nuget
 
-      - name: Setup .NET Core
+      - name: Setup .NET
         uses: actions/setup-dotnet@v5
 
       - name: NuGet login (OIDC → temp API key)
@@ -136,9 +339,9 @@ jobs:
         with:
           user: ${{ secrets.NUGET_USER }}
 
-      - name: Publish NuGet package
+      - name: Publish NuGet packages
         shell: pwsh
         run: |
-          foreach($file in (Get-ChildItem "${{ env.NuGetDirectory }}" -Recurse -Include *.nupkg)) {
+          foreach($file in (Get-ChildItem "nuget" -Recurse -Include *.nupkg)) {
             dotnet nuget push $file --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source ${{ env.NuGetSource }} --skip-duplicate
           }

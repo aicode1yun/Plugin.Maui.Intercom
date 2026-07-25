@@ -5,11 +5,11 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
     <ScrollView>
-        <VerticalStackLayout Padding="30,0" Spacing="25">
+        <VerticalStackLayout Padding="30,0" Spacing="15">
             <Image
                 Aspect="AspectFit"
-                HeightRequest="185"
-                SemanticProperties.Description="dot net bot in a race car number eight"
+                HeightRequest="120"
+                SemanticProperties.Description="Intercom logo"
                 Source="intercom.png" />
 
             <Label
@@ -20,18 +20,47 @@
             <Label
                 SemanticProperties.HeadingLevel="Level2"
                 Style="{StaticResource SubHeadline}"
-                Text="Test a new binding for Intercom using Native Library Interop" />
+                Text="Plugin.Maui.Intercom smoke test" />
+
+            <Label
+                x:Name="StatusLabel"
+                FontAttributes="Bold"
+                Text="Not initialized" />
 
             <Button
-                Clicked="OnDocsButtonClicked"
+                Clicked="OnInitializeClicked"
                 HorizontalOptions="Fill"
-                SemanticProperties.Hint="Navigates to getting started documentation"
-                Text="NLI Documentation" />
+                Text="Initialize" />
 
             <Button
-                Clicked="OnRepoButtonClicked"
+                Clicked="OnRegisterUnidentifiedClicked"
                 HorizontalOptions="Fill"
-                Text="Plugin Repo" />
+                Text="Register unidentified user" />
+
+            <Button
+                Clicked="OnRegisterIdentifiedClicked"
+                HorizontalOptions="Fill"
+                Text="Register identified user (email)" />
+
+            <Button
+                Clicked="OnPresentMessengerClicked"
+                HorizontalOptions="Fill"
+                Text="Present messenger" />
+
+            <Button
+                Clicked="OnPresentHelpCenterClicked"
+                HorizontalOptions="Fill"
+                Text="Present help center" />
+
+            <Button
+                Clicked="OnLogEventClicked"
+                HorizontalOptions="Fill"
+                Text="Log event" />
+
+            <Button
+                Clicked="OnLogoutClicked"
+                HorizontalOptions="Fill"
+                Text="Logout" />
         </VerticalStackLayout>
     </ScrollView>
 

@@ -2,9 +2,9 @@
   <Folder Name="/android/">
     <Project Path="src/android/Intercom.Android.Binding/Intercom.Android.Binding.csproj" />
   </Folder>
-  <Folder Name="/macios/">
-    <Project Path="src/macios/Intercom.MaciOS.Binding/Intercom.MaciOS.Binding.csproj" />
-  </Folder>
+  <!-- src/macios/Intercom.iOS.Binding is intentionally NOT part of the solution:
+       it uses the SwiftBindings.Sdk project SDK and can only build on macOS with
+       Xcode 26+. Build it explicitly with eng/generate-ios-binding.sh (macOS) or CI. -->
   <Folder Name="/Solution Items/">
     <File Path="../.editorconfig" />
     <File Path="../android.png" />

@@ -1,14 +1,28 @@
 <Project>
   <!-- Shared MSBuild properties for all projects in the src directory -->
-  
+
   <!-- Shared version for all packages -->
   <PropertyGroup>
-    <IntercomPluginVersion Condition="'$(IntercomPluginVersion)' == ''">0.5.9</IntercomPluginVersion>
+    <IntercomPluginVersion Condition="'$(IntercomPluginVersion)' == ''">0.7.0</IntercomPluginVersion>
     <!-- Use Version if provided, otherwise use IntercomPluginVersion -->
     <BindingPackageVersion Condition="'$(Version)' != ''">$(Version)</BindingPackageVersion>
     <BindingPackageVersion Condition="'$(Version)' == ''">$(IntercomPluginVersion)</BindingPackageVersion>
+
+    <!-- CI computes the version once (MinVer in the version job) and passes it as
+         -p:Version to every build/pack. Skip the in-project MinVer run in that case,
+         otherwise a shallow checkout without tags silently repacks as 0.0.0-alpha.0. -->
+    <MinVerSkip Condition="'$(Version)' != ''">true</MinVerSkip>
+  </PropertyGroup>
+
+  <!-- Centrally pinned tool/SDK versions.
+       Change these in one place; eng/ scripts and CI read them from here. -->
+  <PropertyGroup>
+    <!-- Intercom iOS SDK version vendored at src/macios/Intercom.iOS.Binding/Intercom.xcframework -->
+    <IntercomIosSdkVersion>18.7.2</IntercomIosSdkVersion>
+    <!-- Intercom Android SDK version vendored in src/android/Intercom.Android.Binding/Jars -->
+    <IntercomAndroidSdkVersion>17.4.1</IntercomAndroidSdkVersion>
+    <!-- swift-dotnet-bindings MSBuild project SDK version is pinned in global.json (msbuild-sdks).
+         This property mirrors it for scripts/CI that need the value without JSON parsing. -->
+    <SwiftBindingsSdkVersion>0.17.0</SwiftBindingsSdkVersion>
   </PropertyGroup>
 </Project>
-
-
-

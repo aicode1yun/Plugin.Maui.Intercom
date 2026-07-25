@@ -1,5 +1,4 @@
 using System.Reflection;
-using CommunityToolkit.Maui;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
@@ -21,7 +20,6 @@ public static class MauiProgram
         var builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()
-            .UseMauiCommunityToolkit()
             .UseIntercom()
             .ConfigureFonts(fonts =>
             {
