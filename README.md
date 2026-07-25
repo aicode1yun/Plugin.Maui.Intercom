@@ -8,7 +8,7 @@
 
 ## Status
 
-Both Android and iOS platforms are working.
+Both Android and iOS platforms are working. (The Android CI leg is temporarily disabled while the new iOS binding pipeline lands; the Android binding itself is unchanged and still builds locally.)
 
 <img width="403" height="696" alt="Screenshot 2026-01-20 134953" src="https://github.com/user-attachments/assets/9696d97e-87a2-450a-bd76-ed261101f2f0" />
 <img width="395" height="505" alt="Screenshot 2026-01-20 124137" src="https://github.com/user-attachments/assets/c4f5a049-cdbe-46fc-bce4-bc1b4260c8d2" />
@@ -200,11 +200,10 @@ The main package declares the binding packages as platform-conditional dependenc
 ### How the iOS binding works
 
 - The exact Intercom `Intercom.xcframework` (18.7.2) is **checked into the repository** at `src/macios/Intercom.iOS.Binding/` — ordinary builds never download anything. The SHA-256 of the official release archive is recorded in `eng/intercom-ios.sha256`.
-- `src/macios/Intercom.iOS.Binding` uses the `SwiftBindings.Sdk` MSBuild project SDK (version pinned in `global.json` under `msbuild-sdks`). At build time on macOS it generates the C# binding and a native wrapper from the xcframework, then lays out the NuGet with:
-  - managed assemblies in `lib/net10.0-iosX.Y/` (including the Objective-C companion assembly for Intercom's ObjC surface),
-  - native frameworks under `runtimes/<rid>/native/` (separate device and simulator trees),
-  - `buildTransitive/` targets that add the `NativeReference`s in the consuming app so the framework is embedded, linked and signed automatically.
-- Generated C# sources are **build outputs, not committed**: the generator ships as a pinned NuGet SDK, so builds are deterministic from pinned inputs (SDK version + vendored xcframework) without every contributor installing anything. CI uploads the generated sources as an artifact for review.
+- `src/macios/Intercom.iOS.Binding` uses the `SwiftBindings.Sdk` MSBuild project SDK (version pinned in `global.json` under `msbuild-sdks`). Intercom is a mixed Swift/Objective-C framework whose complete public API is exported through its ObjC umbrella header, so the binding uses the generator's pure-ObjC pipeline (`SwiftFrameworkType=ObjC` + `IsBindingProject=true`): at build time on macOS it parses the framework headers with clang, generates the bgen `ApiDefinition`, and compiles a single binding assembly (namespace `IntercomBinding`).
+- A small, hand-maintained supplement (`ApiDefinitions.extra.cs`, `StructsAndEnums.extra.cs`) covers the pieces the generator does not yet emit: classes declared in headers imported by the umbrella (`ICMUserAttributes`, `IntercomContent`, help-center types), the `Space`/`ContentType` NS_ENUMs, and the `presentIntercom:`/`presentContent:` members that reference them. Re-check the supplement when upgrading Intercom.
+- The package uses the standard iOS binding layout: the managed assembly in `lib/net10.0-iosX.Y/` plus `Intercom.iOS.Binding.resources.zip` beside it containing the full `Intercom.xcframework` (device + simulator slices, resource bundles, `PrivacyInfo.xcprivacy`). The .NET iOS SDK unpacks it in consuming apps and applies the `NativeReference` automatically — embedding, linking and signing included.
+- The remaining generated C# is a **build output, not committed**: the generator ships as a pinned NuGet SDK, so builds are deterministic from pinned inputs (SDK version + vendored xcframework) without every contributor installing anything. CI uploads the generated sources as an artifact for review.
 
 ## Building from Source
 

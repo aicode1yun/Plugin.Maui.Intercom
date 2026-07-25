@@ -49,9 +49,10 @@ The iOS binding uses the `SwiftBindings.Sdk` MSBuild project SDK from
 
 - The SDK version is pinned in `global.json` (`msbuild-sdks`); the Intercom SDK version is pinned in `Directory.Build.props` (`IntercomIosSdkVersion`) and vendored as `src/macios/Intercom.iOS.Binding/Intercom.xcframework`.
 - Binding C# is generated at build time on macOS (Xcode 26+, .NET 10). Generated sources are NOT committed; determinism comes from the pinned SDK + pinned xcframework. CI uploads generated sources as an artifact.
-- Intercom is a mixed Swift/ObjC framework. The generator emits a Swift surface plus an ObjC "companion" assembly; `Intercom.macios.cs` uses the ObjC companion API (`Intercom.Intercom`, `Intercom.Space`, `Intercom.IntercomContent`, `Intercom.ICMUserAttributes`).
-- The nupkg layout: managed dlls in `lib/net10.0-iosX.Y/`, native frameworks in `runtimes/<rid>/native/`, consumer wiring in `buildTransitive/`.
-- There is no Xcode wrapper project and no ApiDefinition.cs anymore; do not reintroduce them.
+- Intercom is a mixed Swift/ObjC framework whose full public API is on the ObjC umbrella header, so the binding uses the generator's pure-ObjC pipeline (`SwiftFrameworkType=ObjC` + `IsBindingProject=true`). Generated namespace is `IntercomBinding`; `Intercom.macios.cs` uses `IntercomBinding.Intercom`, `Space`, `IntercomContent`, `ICMUserAttributes`.
+- `ApiDefinitions.extra.cs` / `StructsAndEnums.extra.cs` in the binding project are a deliberate, minimal supplement for types the generator misses (imported-header classes, NS_ENUMs, presentIntercom:/presentContent:). Keep them in sync with the framework headers on Intercom upgrades.
+- The nupkg uses the classic iOS binding layout: `lib/net10.0-iosX.Y/Intercom.iOS.Binding.dll` + `Intercom.iOS.Binding.resources.zip` (full xcframework); the .NET iOS SDK applies the NativeReference in consumers automatically.
+- There is no Xcode wrapper project and no full manual ApiDefinition anymore; do not reintroduce them.
 
 ### Android binding
 
