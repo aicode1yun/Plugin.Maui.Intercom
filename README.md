@@ -214,7 +214,7 @@ Requirements:
 |------|---------|
 | .NET SDK | 10.0.1xx (`global.json`) |
 | .NET MAUI workloads | `maui-ios`, `maui-android` |
-| Xcode (iOS binding + apps) | 26+ (CI pins 26.3) |
+| Xcode (iOS binding + apps) | 26+ (CI pins 26.6) |
 | macOS | Required for anything iOS-native |
 | JDK (Android binding) | 17 |
 

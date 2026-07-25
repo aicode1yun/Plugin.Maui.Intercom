@@ -75,7 +75,7 @@ Native Java code in `src/android/native/mauiintercom/` wraps the Intercom Androi
 - All three packages (`Plugin.Maui.Intercom`, `.iOS.Binding`, `.Android.Binding`) share one version (`Directory.Build.props` / `-p:Version`).
 - The main package declares the bindings as platform-conditional NuGet dependencies; consumers must never need to reference a binding directly.
 - Pack with explicit `dotnet pack`; `GeneratePackageOnBuild` is off everywhere.
-- CI (`.github/workflows/publish.yml`): version → android (Windows) + ios-binding (macos-26, Xcode 26.3) → main-package → consumer-test (clean-room) → deploy (release only, pushes the exact validated artifacts).
+- CI (`.github/workflows/publish.yml`): version → android (Windows) + ios-binding (macos-26, Xcode 26.6) → main-package → consumer-test (clean-room) → deploy (release only, pushes the exact validated artifacts).
 
 ## Configuration Notes
 

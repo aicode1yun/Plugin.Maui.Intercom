@@ -9,7 +9,7 @@
 #   consumer-test  → clean-room MAUI app consuming ONLY the packed NuGets (simulator + device)
 #   deploy         → push the exact validated artifacts to NuGet.org on release
 #
-# Pinned toolchain: .NET 10 (global.json), Xcode 26.3, SwiftBindings.Sdk (global.json
+# Pinned toolchain: .NET 10 (global.json), Xcode 26.6, SwiftBindings.Sdk (global.json
 # msbuild-sdks), Intercom iOS 18.7.2 (vendored xcframework), Intercom Android 17.4.1 (vendored AARs).
 
 name: publish
@@ -46,7 +46,7 @@ concurrency:
 env:
   DOTNET_NOLOGO: true
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
-  XCODE_PATH: /Applications/Xcode_26.3.app
+  XCODE_PATH: /Applications/Xcode_26.6.app
 
 permissions: {}
 
@@ -139,7 +139,7 @@ jobs:
         with:
           show-progress: false
 
-      - name: Select Xcode 26.3
+      - name: Select Xcode 26.6
         run: sudo xcode-select -s "$XCODE_PATH"
 
       - name: Setup .NET
@@ -154,7 +154,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.nuget/packages
-          key: nuget-ios-${{ runner.os }}-xcode26.3-${{ hashFiles('global.json', 'Directory.Build.props', 'src/macios/**/*.csproj') }}
+          key: nuget-ios-${{ runner.os }}-xcode26.6-${{ hashFiles('global.json', 'Directory.Build.props', 'src/macios/**/*.csproj') }}
 
       - name: Generate, build and pack iOS binding
         run: |
@@ -205,7 +205,7 @@ jobs:
         with:
           show-progress: false
 
-      - name: Select Xcode 26.3
+      - name: Select Xcode 26.6
         run: sudo xcode-select -s "$XCODE_PATH"
 
       - name: Setup .NET
@@ -272,7 +272,7 @@ jobs:
         with:
           show-progress: false
 
-      - name: Select Xcode 26.3
+      - name: Select Xcode 26.6
         run: sudo xcode-select -s "$XCODE_PATH"
 
       - name: Setup .NET
