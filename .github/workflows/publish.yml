@@ -306,6 +306,14 @@ jobs:
           echo "── package entries ──"
           for p in nuget/*.nupkg; do echo "== $p"; unzip -l "$p" | head -100; done
 
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: consumer-test-binlog
+          path: /tmp/icom-test/*.binlog
+          retention-days: 7
+          if-no-files-found: ignore
+
   # ──────────────────────────────────────────────────────────────────────────
   deploy:
     if: github.event_name == 'release'

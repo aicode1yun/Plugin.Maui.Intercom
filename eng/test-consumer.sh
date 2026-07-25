@@ -75,7 +75,6 @@ cat > "$APP_DIR/App.csproj" <<EOF
     <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
     <ApplicationVersion>1</ApplicationVersion>
     <SupportedOSPlatformVersion>15.0</SupportedOSPlatformVersion>
-    <RuntimeIdentifiers>ios-arm64;iossimulator-arm64</RuntimeIdentifiers>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Maui.Controls" Version="\$(MauiVersion)" />
@@ -215,15 +214,16 @@ PYEOF
 
 echo ""
 echo "── Simulator build (iossimulator-arm64) ────────────────"
-dotnet build App.csproj -c Release -r iossimulator-arm64 --no-restore
+# Implicit restore picks up $APP_ROOT/NuGet.config via directory hierarchy and
+# restores for exactly this RuntimeIdentifier.
+dotnet build App.csproj -c Release -r iossimulator-arm64
 
 echo ""
 echo "── Device build (ios-arm64, unsigned) ──────────────────"
 # Clean between RID builds: the iOS toolchain caches target-platform state under
 # obj/ and otherwise tries to link the device build against simulator settings.
 rm -rf obj bin
-dotnet restore App.csproj --configfile "$APP_ROOT/NuGet.config"
-dotnet build App.csproj -c Release -r ios-arm64 --no-restore -p:EnableCodeSigning=false
+dotnet build App.csproj -c Release -r ios-arm64 -p:EnableCodeSigning=false -bl:"$APP_ROOT/device.binlog"
 
 echo ""
 echo "── Inspecting device .app ──────────────────────────────"
