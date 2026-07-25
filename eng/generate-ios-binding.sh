@@ -12,11 +12,11 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BINDING_PROJ="$REPO_ROOT/src/macios/Intercom.iOS.Binding/Intercom.iOS.Binding.csproj"
 OUTPUT_DIR="$REPO_ROOT/artifacts/packages"
-VERSION_ARGS=()
+VERSION_ARG=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --version) VERSION_ARGS=("-p:Version=$2"); shift 2 ;;
+    --version) VERSION_ARG="-p:Version=$2"; shift 2 ;;
     --output)  OUTPUT_DIR="$2"; shift 2 ;;
     *) echo "Unknown argument: $1" >&2; exit 2 ;;
   esac
@@ -75,8 +75,8 @@ rm -rf "$REPO_ROOT/src/macios/Intercom.iOS.Binding/obj" \
        "$REPO_ROOT/src/macios/Intercom.iOS.Binding/bin"
 mkdir -p "$OUTPUT_DIR"
 
-dotnet build "$BINDING_PROJ" -c Release "${VERSION_ARGS[@]}"
-dotnet pack  "$BINDING_PROJ" -c Release --no-build --output "$OUTPUT_DIR" "${VERSION_ARGS[@]}"
+dotnet build "$BINDING_PROJ" -c Release -p:SwiftGeneratorVerbosity=2 ${VERSION_ARG:+"$VERSION_ARG"}
+dotnet pack  "$BINDING_PROJ" -c Release --no-build --output "$OUTPUT_DIR" ${VERSION_ARG:+"$VERSION_ARG"}
 
 echo ""
 echo "Packed:"

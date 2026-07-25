@@ -1,8 +1,9 @@
 using Foundation;
 using Microsoft.Maui.ApplicationModel;
-using NativeIntercom = global::Intercom.Intercom;
-using NativeSpace = global::Intercom.Space;
-using NativeContent = global::Intercom.IntercomContent;
+using IntercomBinding;
+using NativeIntercom = IntercomBinding.Intercom;
+using NativeSpace = IntercomBinding.Space;
+using NativeContent = IntercomBinding.IntercomContent;
 
 namespace Plugin.Maui.Intercom;
 
@@ -31,7 +32,7 @@ partial class IntercomImplementation : IIntercom
 
         MainThread.BeginInvokeOnMainThread(() =>
         {
-            var attributes = new global::Intercom.ICMUserAttributes { UserId = userId };
+            var attributes = new ICMUserAttributes { UserId = userId };
             NativeIntercom.LoginUserWithUserAttributes(
                 attributes,
                 () => onSuccess?.Invoke(),
@@ -48,7 +49,7 @@ partial class IntercomImplementation : IIntercom
 
         MainThread.BeginInvokeOnMainThread(() =>
         {
-            var attributes = new global::Intercom.ICMUserAttributes { Email = email };
+            var attributes = new ICMUserAttributes { Email = email };
             NativeIntercom.LoginUserWithUserAttributes(
                 attributes,
                 () => onSuccess?.Invoke(),
@@ -109,7 +110,7 @@ partial class IntercomImplementation : IIntercom
 
     public void SetBottomPadding(int bottomPadding)
     {
-        MainThread.BeginInvokeOnMainThread(() => NativeIntercom.SetBottomPadding(bottomPadding));
+        MainThread.BeginInvokeOnMainThread(() => NativeIntercom.SetBottomPadding((nfloat)bottomPadding));
     }
 
     public void LogEvent(string name)

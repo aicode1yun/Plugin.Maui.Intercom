@@ -14,6 +14,16 @@
   <PropertyGroup>
     <TargetFramework>net10.0-ios</TargetFramework>
     <SupportedOSPlatformVersion>15.0</SupportedOSPlatformVersion>
+
+    <!-- Bind Intercom's Objective-C surface only (pure-ObjC pipeline).
+         Intercom is a mixed Swift/ObjC framework; its complete public API is
+         exported through the ObjC umbrella header, which is all the plugin
+         needs. The mixed pipeline's Swift/ObjC dedup removes shared classes
+         (ICMUserAttributes, …) from the ObjC companion, so the plugin binds
+         the ObjC surface directly instead. IsBindingProject engages the .NET
+         iOS bgen pipeline for the generated ApiDefinition (SWIFTBIND004). -->
+    <SwiftFrameworkType>ObjC</SwiftFrameworkType>
+    <IsBindingProject>true</IsBindingProject>
   </PropertyGroup>
 
   <!-- NuGet Package Properties -->

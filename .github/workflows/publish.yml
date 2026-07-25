@@ -166,8 +166,12 @@ jobs:
         if: always()
         run: |
           mkdir -p gen-src
-          find src/macios/Intercom.iOS.Binding/obj -name '*.cs' -maxdepth 6 -exec cp {} gen-src/ \; 2>/dev/null || true
-          ls -la gen-src || true
+          rsync -am --include='*/' \
+            --include='*.cs' --include='*.json' --include='*.log' \
+            --include='*.props' --include='*.targets' --include='*.txt' \
+            --exclude='*' \
+            src/macios/Intercom.iOS.Binding/obj/ gen-src/ 2>/dev/null || true
+          find gen-src -type f | head -100 || true
 
       - uses: actions/upload-artifact@v4
         if: always()
