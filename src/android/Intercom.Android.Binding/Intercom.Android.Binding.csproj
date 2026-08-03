@@ -54,6 +54,42 @@
     <PackageReference Include="Xamarin.AndroidX.Compose.Runtime.Annotation.Jvm" Version="1.9.2" ExcludeAssets="all" PrivateAssets="all" />
   </ItemGroup>
 
+  <!--
+    Declared by the Intercom AARs' POMs but previously absent from this graph.
+    The vendored classes reference them directly, so without these the messenger
+    hits NoClassDefFoundError at runtime while the rest of the SDK works:
+      androidx.work          → SendMessageWorker, ConversationReplyReceiver (push quick-reply)
+      androidx.media3:ui     → PreviewUriKt (video attachment preview)
+      kotlin-parcelize       → 22 @Parcelize model classes
+    Versions track what intercom-sdk-base/-ui 17.4.1 ask for, and the Media3 and
+    Kotlin versions already pinned below.
+  -->
+  <ItemGroup>
+    <PackageReference Include="Xamarin.AndroidX.Work.Runtime" Version="2.9.1.1" />
+    <PackageReference Include="Xamarin.AndroidX.Media3.UI" Version="1.6.1.1" />
+    <PackageReference Include="Xamarin.Kotlin.Parcelize.Runtime" Version="2.2.20" />
+  </ItemGroup>
+
+  <!--
+    Explicit pins that settle NU1608 constraint violations: each was being pulled
+    in transitively at a version outside a sibling's declared range, which NuGet
+    warns about and then resolves anyway. Aligning the whole Lifecycle family on
+    2.9.4 removes them. Lifecycle.Service comes in via Work.Runtime above.
+
+    NOT fixed here: Xamarin.AndroidX.Emoji2.ViewsHelper 1.5.0.6 requires
+    Emoji2 [1.5.0.6, 1.5.1) but AppCompat resolves Emoji2 1.6.0. Clearing it
+    means moving ViewsHelper to 1.6.0.x, which demands Core 1.19 and
+    Collection 1.6 — raising the AndroidX floor for the whole plugin. That is a
+    deliberate decision on its own, not a drive-by fix.
+  -->
+  <ItemGroup>
+    <PackageReference Include="Xamarin.AndroidX.Lifecycle.LiveData" Version="2.9.4" />
+    <PackageReference Include="Xamarin.AndroidX.Lifecycle.LiveData.Ktx" Version="2.9.4" />
+    <PackageReference Include="Xamarin.AndroidX.Lifecycle.LiveData.Core.Ktx" Version="2.9.4" />
+    <PackageReference Include="Xamarin.AndroidX.Lifecycle.Process" Version="2.9.4" />
+    <PackageReference Include="Xamarin.AndroidX.Lifecycle.Service" Version="2.9.4" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="GoogleGson" Version="2.13.1.1" />
     <PackageReference Include="Square.OkIO">
