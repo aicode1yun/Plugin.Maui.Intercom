@@ -41,7 +41,9 @@
     <!-- Platform Support.
          iOS floor is dictated by the Intercom iOS SDK (15.0 as of Intercom 18.x). -->
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
-    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
+    <!-- Android floor is dictated by the resolved dependency graph, not by MAUI: AndroidX
+         Emoji2 1.6.0 declares minSdk 23, so an app at 21 cannot merge its manifest. -->
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">23.0</SupportedOSPlatformVersion>
   </PropertyGroup>
 
 

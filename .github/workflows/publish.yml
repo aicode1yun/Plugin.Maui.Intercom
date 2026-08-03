@@ -115,6 +115,12 @@ jobs:
         shell: pwsh
         run: dotnet pack src/android/Intercom.Android.Binding/Intercom.Android.Binding.csproj -c Release --output ${{ github.workspace }}/nuget -p:Version=${{ needs.version.outputs.version }}
 
+      # Optional add-on: Ably realtime support. Not referenced by Plugin.Maui.Intercom;
+      # consumers opt in. Packed here so it ships on the same version as everything else.
+      - name: Pack Android Ably add-on
+        shell: pwsh
+        run: dotnet pack src/android/Intercom.Android.Ably/Intercom.Android.Ably.csproj -c Release --output ${{ github.workspace }}/nuget -p:Version=${{ needs.version.outputs.version }}
+
       - uses: actions/upload-artifact@v4
         with:
           name: nuget-android

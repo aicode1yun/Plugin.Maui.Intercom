@@ -1,6 +1,8 @@
 <Solution>
   <Folder Name="/android/">
     <Project Path="src/android/Intercom.Android.Binding/Intercom.Android.Binding.csproj" />
+    <!-- Optional add-on package; not a dependency of Plugin.Maui.Intercom. -->
+    <Project Path="src/android/Intercom.Android.Ably/Intercom.Android.Ably.csproj" />
   </Folder>
   <!-- src/macios/Intercom.iOS.Binding is intentionally NOT part of the solution:
        it uses the SwiftBindings.Sdk project SDK and can only build on macOS with

@@ -23,6 +23,24 @@ Install with the dotnet CLI: `dotnet add package Plugin.Maui.Intercom`, or throu
 
 The platform binding packages (`Plugin.Maui.Intercom.iOS.Binding`, `Plugin.Maui.Intercom.Android.Binding`) are declared as platform-specific NuGet dependencies of the main package and restore automatically — never reference them directly.
 
+#### Optional: Android realtime (`Plugin.Maui.Intercom.Android.Ably`)
+
+Intercom's Android SDK uses [Ably](https://ably.com) for live conversation updates — messages arriving while the messenger is open, typing indicators, unread-count changes. That client is **not** included by default, so out of the box Android falls back to polling and logs:
+
+```
+W  Intercom realtime  No realtime ...
+```
+
+The messenger works fine either way. Add the package only if you want live updates:
+
+```xml
+<PackageReference Include="Plugin.Maui.Intercom.Android.Ably" Version="<same as Plugin.Maui.Intercom>" />
+```
+
+There is no API to call and nothing to initialize — the Intercom SDK picks the client up off the classpath.
+
+It is a separate, opt-in package because Intercom's POM asks for `io.ably:ably-android`, whose closure includes **Firebase Messaging**. Every Ably type Intercom actually references is core `ably-java`, so this package vendors that instead and imposes no Firebase dependency on anyone. iOS needs nothing equivalent — the Intercom iOS SDK ships its realtime transport inside `Intercom.xcframework`.
+
 ### Supported Platforms and Versions
 
 | | Version |
@@ -30,7 +48,7 @@ The platform binding packages (`Plugin.Maui.Intercom.iOS.Binding`, `Plugin.Maui.
 | .NET | **.NET 10** (`net10.0-ios`, `net10.0-android`) |
 | .NET MAUI | 10.x |
 | iOS | 15.0+ |
-| Android | 5.0 (API 21)+ |
+| Android | 6.0 (API 23)+ |
 
 ### Native SDK Versions (pinned)
 

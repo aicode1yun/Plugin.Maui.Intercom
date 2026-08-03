@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Shipped in the Android binding package and imported automatically by any project
+  that references it (directly or through Plugin.Maui.Intercom).
+
+  Problem this solves:
+
+  Intercom's Android SDK pulls in Jetpack Compose, and Xamarin.AndroidX.Compose.Runtime.Annotation
+  publishes two variants that both define androidx.compose.runtime.Immutable / Stable:
+
+      Xamarin.AndroidX.Compose.Runtime.Annotation.Android  -> aar/runtime-annotation-android.aar
+      Xamarin.AndroidX.Compose.Runtime.Annotation.Jvm      -> jar/runtime-annotation-jvm.jar
+
+  The .Jvm package adds its jar to @(AndroidJavaLibrary) whenever AndroidApplication is
+  true, so an app that ends up with both on the graph fails to dex:
+
+      Type androidx.compose.runtime.Immutable is defined multiple times
+
+  Why it has to be fixed here and not by NuGet metadata:
+
+  The remedy is an ExcludeAssets/PrivateAssets suppression, and a suppression describes one
+  reference edge — it does not travel through NuGet dependency metadata the way a dependency
+  id does. NuGet also unions assets across every path a package arrives by, so suppressing it
+  on this package's edge does nothing about the edge from Compose.Runtime to the .Jvm variant
+  in the consuming app. Without this file every consumer has to hand-add:
+
+      <PackageReference Include="Xamarin.AndroidX.Compose.Runtime.Annotation.Jvm"
+                        Version="..." ExcludeAssets="all" PrivateAssets="all" />
+
+  Restore-time metadata cannot express that, but a build-time item removal can. Android wants
+  the .Android variant, so the .Jvm jar is the one that goes.
+
+  Set PluginMauiIntercomFixComposeAnnotationDuplicate=false to opt out (for example if you
+  would rather manage the suppression yourself).
+-->
+<Project>
+
+  <PropertyGroup>
+    <PluginMauiIntercomFixComposeAnnotationDuplicate Condition=" '$(PluginMauiIntercomFixComposeAnnotationDuplicate)' == '' ">true</PluginMauiIntercomFixComposeAnnotationDuplicate>
+  </PropertyGroup>
+
+  <!--
+    Hook placement matters. The dexer does NOT read @(AndroidJavaLibrary) directly:
+    _DetermineJavaLibrariesToCompile (Xamarin.Android.Javac.targets) feeds it to the
+    DetermineJavaLibrariesToCompile task, which produces @(_JavaLibrariesToCompile) ->
+    @(_JavaLibrariesToCompileForApp), and that is what D8/R8 receive. So the removal has to
+    happen before that target, not before _CompileDex — _CompileDex only gathers the
+    finished .dex files, and its DependsOnTargets have already dexed by the time anything
+    hooked BeforeTargets="_CompileDex" runs.
+
+    _CheckDuplicateJavaLibraries and the two apk targets also read @(AndroidJavaLibrary),
+    so they are covered too.
+
+    This runs inside a target rather than as an evaluation-time ItemGroup because the .Jvm
+    package adds its jar from its own imported targets and buildTransitive import order
+    between two packages is not guaranteed.
+  -->
+  <Target Name="_PluginMauiIntercomRemoveDuplicateComposeRuntimeAnnotation"
+          Condition=" '$(PluginMauiIntercomFixComposeAnnotationDuplicate)' == 'true' AND '$(AndroidApplication)' == 'true' "
+          BeforeTargets="_DetermineJavaLibrariesToCompile;_CheckDuplicateJavaLibraries;_BuildApkEmbed;_BuildApkFastDev">
+    <ItemGroup>
+      <AndroidJavaLibrary Remove="@(AndroidJavaLibrary->WithMetadataValue('Filename','runtime-annotation-jvm'))" />
+    </ItemGroup>
+  </Target>
+
+</Project>

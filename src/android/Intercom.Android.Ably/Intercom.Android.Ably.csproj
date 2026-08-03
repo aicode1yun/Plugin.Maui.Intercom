@@ -1,0 +1,98 @@
+<!-- Optional realtime support for Plugin.Maui.Intercom on Android.
+
+     Intercom's Android SDK talks to Ably for live conversation updates
+     (io.intercom.android.sdk.AblyManager). Its POM declares io.ably:ably-android, but the
+     only Ably types Intercom actually references are core ably-java:
+
+         io.ably.lib.realtime.{AblyRealtime, Channel, Connection, ConnectionState,
+                               ConnectionStateListener}
+         io.ably.lib.rest.Auth$TokenCallback
+         io.ably.lib.types.{ClientOptions, ErrorInfo, Message}
+
+     Nothing from ably-android's Firebase-backed push surface is touched, so this package
+     vendors ably-java instead and avoids dragging Firebase Messaging into every consumer.
+
+     Without this package Intercom degrades gracefully — the messenger works, and logcat
+     carries a "No realtime" warning under the "Intercom realtime" tag. That is why this
+     ships as an opt-in package rather than a dependency of Plugin.Maui.Intercom. -->
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0-android</TargetFramework>
+    <!-- Matches Plugin.Maui.Intercom; see its csproj for why the floor is 23. -->
+    <SupportedOSPlatformVersion>23</SupportedOSPlatformVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>true</IsPackable>
+    <IsTrimmable>true</IsTrimmable>
+
+    <!-- Never the default (the project name), which would declare a namespace called
+         `Intercom` in the global namespace of every consuming app and break unqualified
+         `Intercom.Default`. Same reasoning as Intercom.Android.Binding. -->
+    <RootNamespace>MauiIntercomAblyAndroid</RootNamespace>
+  </PropertyGroup>
+
+  <!-- NuGet Package Properties -->
+  <PropertyGroup>
+    <PackageId>Plugin.Maui.Intercom.Android.Ably</PackageId>
+    <Title>Optional Ably realtime support for Plugin.Maui.Intercom on Android</Title>
+    <Authors>kfrancis</Authors>
+    <Description>Adds the Ably realtime client that Intercom's Android SDK uses for live conversation updates. Optional: reference it alongside Plugin.Maui.Intercom to enable realtime; without it the messenger still works but falls back to polling. Vendors ably-java, so it does not pull in Firebase.</Description>
+    <Copyright>Copyright © kfrancis</Copyright>
+    <PackageProjectUrl>https://github.com/kfrancis/Plugin.Maui.Intercom</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/kfrancis/Plugin.Maui.Intercom</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>dotnet-maui;maui;plugin;intercom;android;ably;realtime;</PackageTags>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <Version>$(BindingPackageVersion)</Version>
+  </PropertyGroup>
+
+  <!-- Vendored Ably jars. Bind="false": Intercom calls these from Java, so no C# surface
+       is generated and there is nothing for a consumer to reference from managed code.
+       The jars ride in lib/<tfm>/ beside this package's assembly, which is how the .NET
+       Android SDK discovers native Java payloads in a referenced package.
+
+       Closure (from the ably-java 1.5.0 POM), pinned in Directory.Build.props:
+         io.ably:ably-java                    -> realtime + REST client
+         io.ably:network-client-core          -> transport abstraction (no dependencies)
+         io.ably:network-client-okhttp        -> OkHttp transport (needs okhttp 4.12.0)
+         org.msgpack:msgpack-core             -> wire format
+         com.davidehrmann.vcdiff:vcdiff-core  -> delta decoding
+       gson and okhttp are already in the graph via Plugin.Maui.Intercom.Android.Binding,
+       and are declared below so this package stands on its own.
+       Each jar must be removed from the default AndroidLibrary glob before being added as
+       AndroidJavaLibrary, or it lands in the build twice and CheckDuplicateJavaLibraries
+       fails. Same pattern as Intercom.Android.Binding. -->
+  <ItemGroup>
+    <AndroidLibrary Remove="Jars\ably-java-$(AblyJavaSdkVersion).jar" />
+    <AndroidJavaLibrary Include="Jars\ably-java-$(AblyJavaSdkVersion).jar" Visible="false" />
+
+    <AndroidLibrary Remove="Jars\network-client-core-$(AblyNetworkClientVersion).jar" />
+    <AndroidJavaLibrary Include="Jars\network-client-core-$(AblyNetworkClientVersion).jar" Visible="false" />
+
+    <AndroidLibrary Remove="Jars\network-client-okhttp-$(AblyNetworkClientVersion).jar" />
+    <AndroidJavaLibrary Include="Jars\network-client-okhttp-$(AblyNetworkClientVersion).jar" Visible="false" />
+
+    <AndroidLibrary Remove="Jars\msgpack-core-$(MsgpackCoreVersion).jar" />
+    <AndroidJavaLibrary Include="Jars\msgpack-core-$(MsgpackCoreVersion).jar" Visible="false" />
+
+    <AndroidLibrary Remove="Jars\vcdiff-core-$(VcdiffCoreVersion).jar" />
+    <AndroidJavaLibrary Include="Jars\vcdiff-core-$(VcdiffCoreVersion).jar" Visible="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="GoogleGson" Version="2.13.1.1" />
+    <PackageReference Include="Square.OkHttp3" Version="4.12.0.9" />
+    <PackageReference Include="Xamarin.Kotlin.StdLib" Version="2.2.20" />
+  </ItemGroup>
+
+  <!-- Package content -->
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+</Project>
