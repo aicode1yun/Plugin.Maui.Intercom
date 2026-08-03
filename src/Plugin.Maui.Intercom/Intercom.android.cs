@@ -103,8 +103,22 @@ internal class IntercomImplementation : IIntercom
     /// <inheritdoc />
     public void LogEvent(string name)
     {
-        throw new NotSupportedException("Event logging is not exposed by the Android native wrapper yet.");
+        if (string.IsNullOrEmpty(name))
+        {
+            throw new ArgumentException($"'{nameof(name)}' cannot be null or empty.", nameof(name));
+        }
+
+        IntercomSdk.LogEvent(name);
     }
+
+    /// <inheritdoc />
+    public void EnableLogging()
+    {
+        IntercomSdk.EnableLogging();
+    }
+
+    /// <inheritdoc />
+    public bool IsUserLoggedIn => IntercomSdk.IsUserLoggedIn;
 
     private class IntercomCallback : Object, IIntercomCallback
     {

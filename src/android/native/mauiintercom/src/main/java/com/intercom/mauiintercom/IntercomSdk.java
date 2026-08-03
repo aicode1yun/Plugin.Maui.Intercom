@@ -22,6 +22,43 @@ import io.intercom.android.sdk.identity.Registration;
 public class IntercomSdk {
 
     /**
+     * Turn on Intercom's verbose logging (logcat tag "intercom"). Call before initialize.
+     * The Messenger reports most failures as a generic error screen; these logs carry the reason.
+     */
+    public static void enableLogging() {
+        try {
+            Intercom.setLogLevel(Intercom.LogLevel.VERBOSE);
+        } catch (Exception e) {
+            Log.e("intercom", "Enabling Intercom logging failed: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Whether a user is currently logged in to Intercom.
+     * @return {boolean} true when a user is registered
+     */
+    public static boolean isUserLoggedIn() {
+        try {
+            return Intercom.client().isUserLoggedIn();
+        } catch (Exception e) {
+            Log.e("intercom", "Checking Intercom login state failed: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Log an event with the given name
+     * @param name {String} The name of the event
+     */
+    public static void logEvent(String name) {
+        try {
+            Intercom.client().logEvent(name);
+        } catch (Exception e) {
+            Log.e("intercom", "Logging event failed: " + e.getMessage());
+        }
+    }
+
+    /**
      * Initialize Intercom SDK
      * @param activity {Activity} The activity to initialize the Intercom SDK
      * @param apiKey {String} The Intercom API key

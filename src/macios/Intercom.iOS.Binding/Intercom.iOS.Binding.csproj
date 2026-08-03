@@ -44,15 +44,16 @@
     <Version>$(BindingPackageVersion)</Version>
   </PropertyGroup>
 
-  <!-- Supplemental binding definitions for types the generator's ObjC pipeline
-       misses (classes from headers imported by the umbrella, NS_ENUMs, and the
-       Intercom members referencing them). bgen merges these with the generated
-       ApiDefinition.cs / StructsAndEnums.cs. -->
-  <ItemGroup>
-    <Compile Remove="ApiDefinitions.extra.cs;StructsAndEnums.extra.cs" />
-    <ObjcBindingApiDefinition Include="ApiDefinitions.extra.cs" />
-    <ObjcBindingCoreSource Include="StructsAndEnums.extra.cs" />
-  </ItemGroup>
+  <!-- No supplemental ApiDefinition/StructsAndEnums files.
+       Up to SwiftBindings.Sdk 0.17.0 the ObjC pipeline's `-fmodules` retry made
+       clang treat Intercom as a module, so `#import <Intercom/SiblingHeader.h>`
+       inside the umbrella header collapsed into a module import and the ICM*
+       classes, IntercomContent, and the Space/ContentType NS_ENUMs never reached
+       the parse. Two hand-written supplement files covered the gap. 0.18.0 passes
+       `-fmodule-name` on that retry so the framework's own headers parse
+       textually and those declarations are generated — the supplements were
+       removed with the 0.18.1 upgrade. See
+       https://github.com/justinwojo/swift-dotnet-bindings/issues/44 -->
 
   <!-- Package content -->
   <ItemGroup>

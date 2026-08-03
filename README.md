@@ -39,7 +39,7 @@ The platform binding packages (`Plugin.Maui.Intercom.iOS.Binding`, `Plugin.Maui.
 | Android  | 17.4.1              |
 | iOS      | 18.7.2              |
 
-> **Breaking change (0.7.0):** the plugin now targets .NET 10 only. .NET 9 (`net9.0-*`) consumers must stay on 0.6.x or earlier. The iOS binding was replaced: the former `MauiIntercomMaciOS` wrapper types and the public `DictionaryExtensions.ToNSDictionary` iOS helper were removed. The `IIntercom` interface itself is source-compatible, with one addition: `LogEvent(string name)` (iOS only; throws `NotSupportedException` on Android).
+> **Breaking change (0.7.0):** the plugin now targets .NET 10 only. .NET 9 (`net9.0-*`) consumers must stay on 0.6.x or earlier. The iOS binding was replaced: the former `MauiIntercomMaciOS` wrapper types and the public `DictionaryExtensions.ToNSDictionary` iOS helper were removed. The `IIntercom` interface itself is source-compatible, with three additions: `LogEvent(string name)`, `EnableLogging()` and `IsUserLoggedIn` — all implemented on both platforms.
 
 ## Setup
 
@@ -149,13 +149,32 @@ Intercom.Default.PresentCarousel("carousel-id");    // A specific carousel
 
 All presentation happens on the main thread automatically.
 
+Intercom reports *every* Messenger failure the same way — a generic "something went wrong"
+screen — so check that a user is actually registered before presenting, and turn on the native
+SDK's own logging while diagnosing:
+
+```csharp
+Intercom.Default.EnableLogging();       // call before Initialize; not for release builds
+Intercom.Default.Initialize(apiKey, appId);
+
+if (!Intercom.Default.IsUserLoggedIn)
+{
+    Intercom.Default.Register();        // or RegisterWithEmail / RegisterWithUserId
+}
+
+Intercom.Default.PresentMessenger(null);
+```
+
+`EnableLogging` writes to the Xcode console on iOS and to logcat (tag `intercom`) on Android.
+The usual causes of the error screen are: no logged-in user, an API key that belongs to the
+other platform, an App ID that does not match the key, or identity verification enabled on the
+workspace without a matching `SetUserHash` call *before* registration.
+
 ### Events
 
 ```csharp
 Intercom.Default.LogEvent("clicked_checkout");
 ```
-
-> `LogEvent` is currently iOS-only; on Android it throws `NotSupportedException` because the Android native wrapper does not expose event logging yet.
 
 ### Customization
 
@@ -201,7 +220,7 @@ The main package declares the binding packages as platform-conditional dependenc
 
 - The exact Intercom `Intercom.xcframework` (18.7.2) is **checked into the repository** at `src/macios/Intercom.iOS.Binding/` — ordinary builds never download anything. The SHA-256 of the official release archive is recorded in `eng/intercom-ios.sha256`.
 - `src/macios/Intercom.iOS.Binding` uses the `SwiftBindings.Sdk` MSBuild project SDK (version pinned in `global.json` under `msbuild-sdks`). Intercom is a mixed Swift/Objective-C framework whose complete public API is exported through its ObjC umbrella header, so the binding uses the generator's pure-ObjC pipeline (`SwiftFrameworkType=ObjC` + `IsBindingProject=true`): at build time on macOS it parses the framework headers with clang, generates the bgen `ApiDefinition`, and compiles a single binding assembly (namespace `IntercomBinding`).
-- A small, hand-maintained supplement (`ApiDefinitions.extra.cs`, `StructsAndEnums.extra.cs`) covers the pieces the generator does not yet emit: classes declared in headers imported by the umbrella (`ICMUserAttributes`, `IntercomContent`, help-center types), the `Space`/`ContentType` NS_ENUMs, and the `presentIntercom:`/`presentContent:` members that reference them. Re-check the supplement when upgrading Intercom.
+- The whole surface is generated — there is no hand-written supplement. Up to SwiftBindings.Sdk 0.17.0 the generator's `-fmodules` clang retry made clang build Intercom as a module, which collapsed each `#import <Intercom/SiblingHeader.h>` into a module import and silently dropped every declaration behind it (`ICMUserAttributes`, `IntercomContent`, the help-center types, the `Space`/`ContentType` NS_ENUMs). Two supplement files covered that gap; [SwiftBindings 0.18.0](https://github.com/justinwojo/swift-dotnet-bindings/releases/tag/sdk-v0.18.0) passes `-fmodule-name` on the retry so those headers parse textually, and the supplements were removed.
 - The package uses the standard iOS binding layout: the managed assembly in `lib/net10.0-iosX.Y/` plus `Intercom.iOS.Binding.resources.zip` beside it containing the full `Intercom.xcframework` (device + simulator slices, resource bundles, `PrivacyInfo.xcprivacy`). The .NET iOS SDK unpacks it in consuming apps and applies the `NativeReference` automatically — embedding, linking and signing included.
 - The remaining generated C# is a **build output, not committed**: the generator ships as a pinned NuGet SDK, so builds are deterministic from pinned inputs (SDK version + vendored xcframework) without every contributor installing anything. CI uploads the generated sources as an artifact for review.
 

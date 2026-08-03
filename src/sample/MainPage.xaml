@@ -48,6 +48,11 @@
                 Text="Present messenger" />
 
             <Button
+                Clicked="OnPresentComposerClicked"
+                HorizontalOptions="Fill"
+                Text="Present message composer" />
+
+            <Button
                 Clicked="OnPresentHelpCenterClicked"
                 HorizontalOptions="Fill"
                 Text="Present help center" />
