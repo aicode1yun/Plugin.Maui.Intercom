@@ -1,6 +1,25 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net10.0-android</TargetFramework>
+
+    <!-- Deliberately NOT the default (the project name, 'Intercom.Android.Binding').
+         RootNamespace decides where the generated Android Resource class lands, and the
+         default put it in namespace Intercom.Android.Binding — which declares a namespace
+         called `Intercom` in the GLOBAL namespace of every consuming app.
+
+         C# simple-name lookup searches the members declared in each enclosing namespace
+         before that level's using directives, so in a consumer the global `Intercom`
+         namespace beat the `Intercom` class imported by `using Plugin.Maui.Intercom;`:
+
+             Intercom.Default.Initialize(apiKey, appId);
+             // error CS0234: The type or namespace name 'Default' does not exist
+             //               in the namespace 'Intercom'
+
+         Consumers had to fully qualify Plugin.Maui.Intercom.Intercom.Default or add an
+         alias. iOS was never affected — its binding uses the namespace `IntercomBinding`
+         and generates no Resource class. Pointing RootNamespace at the namespace the
+         bound Java types already use keeps the global namespace clear. -->
+    <RootNamespace>MauiIntercomAndroid</RootNamespace>
     <!-- API 23 (Android 6.0), not 21: AndroidX Emoji2 1.6.0 in the resolved graph declares
          minSdk 23, so a consuming app at 21 fails manifest merge outright. -->
     <SupportedOSPlatformVersion>23</SupportedOSPlatformVersion>
