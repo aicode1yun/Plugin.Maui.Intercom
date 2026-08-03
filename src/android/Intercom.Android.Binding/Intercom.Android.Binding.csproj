@@ -1,7 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net10.0-android</TargetFramework>
-    <SupportedOSPlatformVersion>21</SupportedOSPlatformVersion>
+    <!-- API 23 (Android 6.0), not 21: AndroidX Emoji2 1.6.0 in the resolved graph declares
+         minSdk 23, so a consuming app at 21 fails manifest merge outright. -->
+    <SupportedOSPlatformVersion>23</SupportedOSPlatformVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <IsPackable>true</IsPackable>
@@ -76,11 +78,15 @@
     warns about and then resolves anyway. Aligning the whole Lifecycle family on
     2.9.4 removes them. Lifecycle.Service comes in via Work.Runtime above.
 
-    NOT fixed here: Xamarin.AndroidX.Emoji2.ViewsHelper 1.5.0.6 requires
-    Emoji2 [1.5.0.6, 1.5.1) but AppCompat resolves Emoji2 1.6.0. Clearing it
-    means moving ViewsHelper to 1.6.0.x, which demands Core 1.19 and
-    Collection 1.6 — raising the AndroidX floor for the whole plugin. That is a
-    deliberate decision on its own, not a drive-by fix.
+    Knowingly left in place: Xamarin.AndroidX.Emoji2.ViewsHelper 1.5.0.6 requires
+    Emoji2 [1.5.0.6, 1.5.1) but AppCompat resolves Emoji2 1.6.0. Clearing it means
+    moving ViewsHelper to 1.6.0.x, which demands Core 1.19 and Collection 1.6 —
+    an AndroidX floor bump for the whole plugin.
+
+    The alternative was pinning Emoji2 down to 1.5.0.6 to keep an API 21 floor.
+    We took Emoji2 1.6.0 instead and raised SupportedOSPlatformVersion to 23,
+    because Emoji2 1.6.0 declares minSdk 23 and an app at 21 fails manifest merge.
+    So this warning is expected; the minimum supported Android is API 23.
   -->
   <ItemGroup>
     <PackageReference Include="Xamarin.AndroidX.Lifecycle.LiveData" Version="2.9.4" />

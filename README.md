@@ -30,7 +30,7 @@ The platform binding packages (`Plugin.Maui.Intercom.iOS.Binding`, `Plugin.Maui.
 | .NET | **.NET 10** (`net10.0-ios`, `net10.0-android`) |
 | .NET MAUI | 10.x |
 | iOS | 15.0+ |
-| Android | 5.0 (API 21)+ |
+| Android | 6.0 (API 23)+ |
 
 ### Native SDK Versions (pinned)
 
