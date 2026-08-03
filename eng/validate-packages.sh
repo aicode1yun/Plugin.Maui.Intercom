@@ -129,6 +129,35 @@ if z:
     check(any(n.startswith("lib/net10.0-android") and n.endswith(".dll") for n in names),
           "managed dll under lib/net10.0-android*")
     check(any(n.endswith(".aar") for n in names), "bundled .aar present")
+    # Ships the Compose runtime-annotation dedup fix to consumers; without it every
+    # consuming app fails to dex on a duplicate androidx.compose.runtime.Immutable.
+    check(any(n.startswith("buildTransitive/") and n.endswith(".targets") for n in names),
+          f"buildTransitive targets present ({[n for n in names if 'buildTransitive' in n]})")
+
+# ── Android Ably add-on package (optional) ──────────────────────────────────
+if ios_only:
+    print("\n== Plugin.Maui.Intercom.Android.Ably: SKIPPED (--ios-only) ==")
+    z, names = (None, [])
+else:
+    print(f"\n== Plugin.Maui.Intercom.Android.Ably {version} ==")
+    z, names = load("Plugin.Maui.Intercom.Android.Ably")
+if z:
+    root, _ = nuspec(z, "Plugin.Maui.Intercom.Android.Ably")
+    check(root.find(".//version").text == version, f"package version == {version}")
+    aars = [n for n in names if n.endswith(".aar")]
+    check(len(aars) == 1, f"exactly one bundled .aar ({aars})")
+    if aars:
+        import io as _io
+        inner = zipfile.ZipFile(_io.BytesIO(z.read(aars[0]))).namelist()
+        jars = [n for n in inner if n.startswith("libs/") and n.endswith(".jar")]
+        # ably-java + network-client-core + network-client-okhttp + msgpack-core + vcdiff-core
+        check(len(jars) == 5, f"all five vendored Ably jars embedded in the aar ({len(jars)})")
+    deps = dependency_groups(root)
+    all_dep_ids = {d for g in deps.values() for d in g}
+    # Must not drag Firebase in — that is the whole reason this vendors ably-java
+    # rather than ably-android.
+    check(not any("Firebase" in d for d in all_dep_ids),
+          f"no Firebase dependency ({sorted(all_dep_ids)})")
 
 # ── Main package ────────────────────────────────────────────────────────────
 print(f"\n== Plugin.Maui.Intercom {version} ==")
@@ -158,6 +187,10 @@ if z:
               f"{tfm} depends on Android binding {version}")
         check("Plugin.Maui.Intercom.iOS.Binding" not in deps,
               f"{tfm} does not leak the iOS binding")
+        # The Ably add-on is opt-in: it carries a realtime stack most apps do not need,
+        # so depending on it here would silently impose it on everyone.
+        check("Plugin.Maui.Intercom.Android.Ably" not in deps,
+              f"{tfm} does not depend on the optional Ably add-on")
 
     snupkg = feed / f"Plugin.Maui.Intercom.{version}.snupkg"
     check(snupkg.exists(), "symbols package (.snupkg) present for main package")

@@ -58,6 +58,16 @@ The iOS binding uses the `SwiftBindings.Sdk` MSBuild project SDK from
 
 Native Java code in `src/android/native/mauiintercom/` wraps the Intercom Android SDK; `AndroidGradleProject` in the binding csproj drives Gradle. Vendored AARs live in `src/android/Intercom.Android.Binding/Jars/`. The Intercom Android SDK version (17.4.1) must stay compatible with the pinned Xamarin.AndroidX.Compose packages.
 
+Three Android-specific traps, all fixed and all easy to reintroduce:
+
+- **`RootNamespace` must not start with `Intercom`.** The default (project name `Intercom.Android.Binding`) put the generated `Resource` class in a namespace that declared `Intercom` in the *global* namespace of every consuming app, so `Intercom.Default` failed to resolve with CS0234. Set to `MauiIntercomAndroid`. `src/sample/NamespaceCollisionRegression.cs` guards it.
+- **The binding ships `buildTransitive/*.targets`** that strips the duplicate Compose `runtime-annotation-jvm.jar`; without it every consumer fails to dex. The removal must hook `_DetermineJavaLibrariesToCompile` — `BeforeTargets="_CompileDex"` is too late.
+- **Android floor is API 23**, dictated by AndroidX Emoji2 1.6.0 in the resolved graph, not by MAUI.
+
+### Optional Ably add-on
+
+`src/android/Intercom.Android.Ably/` packs `Plugin.Maui.Intercom.Android.Ably` — the realtime client Intercom uses for live conversation updates. Opt-in: the main package must never depend on it (`eng/validate-packages.sh` asserts this). It vendors **`ably-java`**, not `ably-android`, because Intercom only references core `io.ably.lib.{realtime,rest,types}` types and `ably-android`'s closure includes Firebase Messaging. Without the package Intercom degrades gracefully to polling and logs a "No realtime" warning.
+
 ### Platform-Specific Code Pattern
 
 - `*.shared.cs` - Shared code (all platforms)
