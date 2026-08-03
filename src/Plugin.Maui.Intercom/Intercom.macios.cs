@@ -9,6 +9,13 @@ namespace Plugin.Maui.Intercom;
 
 partial class IntercomImplementation : IIntercom
 {
+    public bool IsUserLoggedIn => NativeIntercom.IsUserLoggedIn();
+
+    public void EnableLogging()
+    {
+        MainThread.BeginInvokeOnMainThread(NativeIntercom.EnableLogging);
+    }
+
     public void Initialize(string apiKey, string appId)
     {
         // Intercom requires initialization on the main thread.

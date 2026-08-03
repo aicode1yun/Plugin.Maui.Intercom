@@ -4,6 +4,6 @@
     "rollForward": "latestFeature"
   },
   "msbuild-sdks": {
-    "SwiftBindings.Sdk": "0.17.0"
+    "SwiftBindings.Sdk": "0.18.1"
   }
 }

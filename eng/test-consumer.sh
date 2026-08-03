@@ -115,9 +115,11 @@ public class MainPage : ContentPage
             // Exercises the full public surface so the managed binding and the
             // native frameworks must resolve and link.
             var intercom = Intercom.Default;
+            intercom.EnableLogging();
             intercom.Initialize("placeholder_api_key", "placeholder_app_id");
             intercom.SetUserHash("placeholder");
             intercom.Register(() => { }, _ => { });
+            _ = intercom.IsUserLoggedIn;
             intercom.RegisterWithUserId("user-1", () => { }, _ => { });
             intercom.RegisterWithEmail("test@example.com", () => { }, _ => { });
             intercom.PresentMessenger(null);

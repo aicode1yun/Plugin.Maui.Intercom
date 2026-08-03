@@ -69,9 +69,12 @@ public partial class MainPage : ContentPage
                 return;
             }
 
+            // Before Initialize: the native SDK then logs why a later Messenger
+            // presentation fails instead of only showing its generic error screen.
+            Intercom.EnableLogging();
             Intercom.Initialize(apiKey, appId);
             _initialized = true;
-            SetStatus("Initialized");
+            SetStatus($"Initialized (appId {appId})");
         }
         catch (Exception ex)
         {
@@ -89,7 +92,7 @@ public partial class MainPage : ContentPage
         try
         {
             Intercom.Register(
-                () => SetStatus("Unidentified registration OK"),
+                () => SetStatus($"Unidentified registration OK (logged in: {Intercom.IsUserLoggedIn})"),
                 error => SetStatus($"Unidentified registration failed: {error}"));
         }
         catch (Exception ex)
@@ -116,7 +119,7 @@ public partial class MainPage : ContentPage
             }
 
             Intercom.RegisterWithEmail(email,
-                () => SetStatus($"Registered {email}"),
+                () => SetStatus($"Registered {email} (logged in: {Intercom.IsUserLoggedIn})"),
                 error => SetStatus($"Registration failed: {error}"));
         }
         catch (Exception ex)
@@ -125,7 +128,21 @@ public partial class MainPage : ContentPage
         }
     }
 
+    // The Messenger is the heaviest smoke test in the sample: it exercises the native UI
+    // stack and the network round-trip, and it reports every failure the same way — a
+    // generic "something went wrong" screen. Presenting it without a logged-in user is the
+    // most common cause, so register first and say so in the status label.
     private void OnPresentMessengerClicked(object sender, EventArgs e)
+    {
+        PresentMessenger(null);
+    }
+
+    private void OnPresentComposerClicked(object sender, EventArgs e)
+    {
+        PresentMessenger("Hello from the Plugin.Maui.Intercom smoke test");
+    }
+
+    private void PresentMessenger(string? message)
     {
         if (!EnsureInitialized())
         {
@@ -134,12 +151,35 @@ public partial class MainPage : ContentPage
 
         try
         {
-            Intercom.PresentMessenger(null);
-            SetStatus("Messenger presented");
+            if (!Intercom.IsUserLoggedIn)
+            {
+                SetStatus("No user logged in — registering unidentified user first…");
+                Intercom.Register(
+                    () => Present(message),
+                    error => SetStatus($"Messenger skipped — registration failed: {error}"));
+                return;
+            }
+
+            Present(message);
         }
         catch (Exception ex)
         {
             SetStatus($"Present failed: {ex.Message}");
+        }
+
+        void Present(string? initialMessage)
+        {
+            try
+            {
+                Intercom.PresentMessenger(initialMessage);
+                SetStatus(initialMessage is null
+                    ? "Messenger presented (logged in). If it shows an error screen, check the Intercom debug log."
+                    : "Message composer presented. If it shows an error screen, check the Intercom debug log.");
+            }
+            catch (Exception ex)
+            {
+                SetStatus($"Present failed: {ex.Message}");
+            }
         }
     }
 
@@ -173,10 +213,6 @@ public partial class MainPage : ContentPage
             Intercom.LogEvent("sample_button_tapped");
             SetStatus("Event logged");
         }
-        catch (NotSupportedException)
-        {
-            SetStatus("LogEvent is not supported on this platform");
-        }
         catch (Exception ex)
         {
             SetStatus($"LogEvent failed: {ex.Message}");
@@ -188,7 +224,7 @@ public partial class MainPage : ContentPage
         try
         {
             Intercom.Logout();
-            SetStatus("Logged out");
+            SetStatus($"Logged out (logged in: {Intercom.IsUserLoggedIn})");
         }
         catch (Exception ex)
         {

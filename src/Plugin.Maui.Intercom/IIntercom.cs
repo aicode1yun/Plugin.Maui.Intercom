@@ -94,8 +94,27 @@ public interface IIntercom
     ///     Log an event with the given name.
     /// </summary>
     /// <param name="name">The name of the event.</param>
-    /// <exception cref="NotSupportedException">
-    ///     Thrown on Android; the Android native wrapper does not currently expose event logging.
-    /// </exception>
     void LogEvent(string name);
+
+    /// <summary>
+    ///     Turn on Intercom's own verbose/debug logging.
+    /// </summary>
+    /// <remarks>
+    ///     Call this before <see cref="Initialize" />. The native SDK then logs the reason behind
+    ///     failures that the Messenger only surfaces as a generic "something went wrong" screen
+    ///     (bad API key/App ID, identity-verification mismatch, no logged-in user). Output goes to
+    ///     the Xcode console on iOS and to logcat (tag <c>intercom</c>) on Android.
+    ///     Do not leave this enabled in release builds.
+    /// </remarks>
+    void EnableLogging();
+
+    /// <summary>
+    ///     Whether a user is currently logged in to Intercom.
+    /// </summary>
+    /// <remarks>
+    ///     Presenting the Messenger before a successful registration is the most common cause of
+    ///     the Messenger's generic error screen. Check this before calling
+    ///     <see cref="PresentMessenger" />.
+    /// </remarks>
+    bool IsUserLoggedIn { get; }
 }
