@@ -293,5 +293,11 @@
   <!-- Package content -->
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="\" />
+    <!-- Auto-imported by consumers (file name must match PackageId). Strips the duplicate
+         Compose runtime-annotation jar that otherwise fails d8 in every consuming app;
+         see the targets file for the full explanation. -->
+    <None Include="buildTransitive\Plugin.Maui.Intercom.Android.Binding.targets"
+          Pack="true"
+          PackagePath="buildTransitive\net10.0-android36.0\" />
   </ItemGroup>
 </Project>
